@@ -10,9 +10,10 @@ class NeracaAwalController extends Controller
 {
     public function show()
     {
-      $neraca_awal = NeracaAwal::all();
-      $neraca_awal = NeracaAwal::with('data_akun')->get();
-                    // dd($user);
+      $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                ->orderBy('data_akun.id')
+                                ->get();
+                    // dd($neraca_awal);
       return response()->json([
          'status'=>'success',
          'neraca_awal'=> $neraca_awal 
@@ -42,6 +43,14 @@ class NeracaAwalController extends Controller
       return response()->json([
         'status'=>'successsssss',
         'result'=> $data ,
+      ]);
+    }
+
+    public function destroy($id)
+    {
+      $data = NeracaAwal::find($id)->delete();
+      return response()->json([
+        'success'=>"Data Deleted successfully."
       ]);
     }
 
