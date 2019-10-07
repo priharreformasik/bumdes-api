@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class NeracaAwal extends Model
 {
     protected $table = 'neraca_awal';
-    protected $fillable = ['id','nama','id_data_akun','tanggal','jumlah'];
+    protected $fillable = ['id','id_data_akun','tanggal','jumlah'];
     public $timestamps = false;
 
     public function data_akun()

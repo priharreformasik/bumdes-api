@@ -49,4 +49,7 @@ Route::middleware('auth:api')->get('/data-akun/delete/{id}', 'DataAkunController
 
 /*======== START OF NERACA AWAL ==========*/
 Route::middleware('auth:api')->get('neraca-awal', 'NeracaAwalController@show');
+Route::middleware('auth:api')->post('/neraca-awal/store', 'NeracaAwalController@store');
+Route::middleware('auth:api')->put('/neraca-awal/update/{id}', 'NeracaAwalController@update');
+Route::middleware('auth:api')->get('/neraca-awal/delete/{id}', 'NeracaAwalController@destroy');
 /*======== END OF NERACA AWAL ==========*/

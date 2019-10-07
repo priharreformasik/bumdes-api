@@ -19,7 +19,7 @@ class UserController extends Controller
     public function login(Request $request){ 
         if(Auth::attempt([
             'email' => request('email'), 
-            'password' => request('password')
+            'password' => request('password'),
         ])){ 
             $user = Auth::user(); 
             $nama = $request->get('nama');
