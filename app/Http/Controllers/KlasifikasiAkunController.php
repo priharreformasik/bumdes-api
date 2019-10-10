@@ -8,10 +8,18 @@ use App\ParentAkun;
 
 class KlasifikasiAkunController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
-      $klasifikasi = ParentAkun::all();
-      $klasifikasi = ParentAkun::with('klasifikasi_akun')->get();
+      // $klasifikasi = ParentAkun::all();
+      // $klasifikasi = ParentAkun::with('klasifikasi_akun')->get();
+      if ($request->id) {
+          $klasifikasi = KlasifikasiAkun::where('id', $request->id)->get();
+      }elseif ($request->id_parent_akun) {
+          $klasifikasi = KlasifikasiAkun::where('id_parent_akun', $request->id_parent_akun)->get();
+      }else {
+          $klasifikasi = KlasifikasiAkun::all();
+      }
+
                     // dd($user);
       return response()->json([
          'status'=>'success',
@@ -29,7 +37,7 @@ class KlasifikasiAkunController extends Controller
       return response()->json([
         'status'=>'success',
         'result'=>$data
-      ]); 
+      ]);
     }
 
     public function update(Request $request,$id)
@@ -51,5 +59,5 @@ class KlasifikasiAkunController extends Controller
         'success'=>"Data Deleted successfully."
       ]);
     }
-      
+
 }

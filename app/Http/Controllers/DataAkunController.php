@@ -8,11 +8,19 @@ use App\KlasifikasiAkun;
 
 class DataAkunController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
-      $data = ParentAkun::all();
-      $data = ParentAkun::with('klasifikasi_akun.data_akun')->get();
+      if ($request->id) {
+          $data = DataAkun::where('id', $request->id)->get();
+      }elseif ($request->id_klasifikasi_akun) {
+          $data = DataAkun::where('id_klasifikasi_akun.data_akun', $request->id_klasifikasi_akun)->get();
+      }else {
+          $data = DataAkun::all();
+      }
+      // $data = ParentAkun::all();
+      // $data = ParentAkun::with('klasifikasi_akun.data_akun')->get();
                     // dd($user);
+
       return response()->json([
          'status'=>'success',
          'data_akun'=> $data ,
@@ -30,22 +38,22 @@ class DataAkunController extends Controller
       return response()->json([
         'status'=>'success',
         'result'=>$data
-      ]); 
-    }
-
-     public function update(Request $request,$id)
-    {
-        $data = DataAkun::find($id);
-        // dd($data);
-        $data->id_klasifikasi_akun=$request->get('id_klasifikasi_akun');
-        $data->posisi_normal=$request->get('posisi_normal')
-        $data->nama=$request->get('nama');
-        $data->save();
-      return response()->json([
-        'status'=>'successsssss',
-        'result'=> $data ,
       ]);
     }
+
+    //  public function update(Request $request,$id)
+    // {
+    //     $data = DataAkun::find($id);
+    //     // dd($data);
+    //     $data->id_klasifikasi_akun=$request->get('id_klasifikasi_akun');
+    //     $data->posisi_normal=$request->get('posisi_normal')
+    //     $data->nama=$request->get('nama');
+    //     $data->save();
+    //   return response()->json([
+    //     'status'=>'successsssss',
+    //     'result'=> $data ,
+    //   ]);
+    // }
 
     public function destroy($id)
     {
