@@ -5,19 +5,45 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\DataAkun;
 use App\NeracaAwal;
+use Carbon\Carbon;
+use DB;
 
 class NeracaAwalController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
-      $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
-                                ->orderBy('data_akun.id')
-                                ->get();
-                    // dd($neraca_awal);
-      return response()->json([
-         'status'=>'success',
-         'neraca_awal'=> $neraca_awal 
-       ]);
+      if($request->has('month') && $request->has('year')){
+        $month = $request->input('month');
+        $year = $request->input('year');
+        $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                  ->whereRaw('MONTH(tanggal) = '.$month)
+                                  ->whereRaw('YEAR(tanggal) = '.$year)
+                                  ->orderBy('data_akun.id')
+                                  ->get();
+        $total_kredit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                              ->where('data_akun.posisi_normal','Kredit')
+                                              ->whereRaw('MONTH(tanggal) = '.$month)
+                                              ->whereRaw('YEAR(tanggal) = '.$year)
+                                              ->sum('jumlah');
+
+        $total_debit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                              ->where('data_akun.posisi_normal','Debit')
+                                              ->whereRaw('MONTH(tanggal) = '.$month)
+                                              ->whereRaw('YEAR(tanggal) = '.$year)
+                                              ->sum('jumlah');
+        return response()->json([
+           'status'=>'success',
+           'neraca_awal'=> $neraca_awal,
+           'total_kredit'=>$total_kredit,
+           'total_debit'=>$total_debit
+         ]);
+
+      }elseif (empty($neraca_awal[0]->id)) {
+        return response()->json([
+        'result'=>'Data tidak tersedia' ,
+        ]);
+      }
+      
     }
 
     public function store(Request $request){

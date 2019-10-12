@@ -53,3 +53,12 @@ Route::middleware('auth:api')->post('/neraca-awal/store', 'NeracaAwalController@
 Route::middleware('auth:api')->put('/neraca-awal/update/{id}', 'NeracaAwalController@update');
 Route::middleware('auth:api')->get('/neraca-awal/delete/{id}', 'NeracaAwalController@destroy');
 /*======== END OF NERACA AWAL ==========*/
+
+/*======== START OF NERACA AWAL ==========*/
+Route::middleware('auth:api')->get('jurnal', 'JurnalController@show');
+Route::middleware('auth:api')->post('/jurnal/store', 'JurnalController@store');
+Route::middleware('auth:api')->put('/jurnal/update/{id}', 'JurnalController@update');
+Route::middleware('auth:api')->get('/jurnal/delete/{id}', 'JurnalController@destroy');
+/*======== END OF NERACA AWAL ==========*/
+
+Route::middleware('auth:api')->get('buku_besar', 'LaporanController@buku_besar');

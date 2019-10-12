@@ -19,4 +19,9 @@ class DataAkun extends Model
     {
         return $this->belongsTo('App\NeracaAwal', 'id_neraca_awal', 'id');
     }
+
+    public function jurnal()
+    {
+        return $this->hasMany('App\Jurnal', 'id_data_akun', 'id');
+    }
 }
