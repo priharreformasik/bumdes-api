@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Jurnal extends Model
 {
     protected $table = 'jurnal';
-    protected $fillable = ['id','id)kwitansi','tanggal','id_data_akun','jumlah','posisi_normal','saldo_akhir'];
+    protected $fillable = ['id','id_kwitansi','tanggal','id_data_akun','jumlah','posisi_normal','saldo_akhir','id_neraca_awal'];
     public $timestamps = false;
 
     public function kwitansi()
@@ -18,5 +18,10 @@ class Jurnal extends Model
     public function data_akun()
     {
         return $this->belongsTo('App\DataAkun', 'id_data_akun', 'id');
+    }
+
+    public function neraca_awal()
+    {
+        return $this->belongsTo('App\NeracaAwal', 'id_neraca_awal', 'id');
     }
 }

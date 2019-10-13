@@ -61,4 +61,7 @@ Route::middleware('auth:api')->put('/jurnal/update/{id}', 'JurnalController@upda
 Route::middleware('auth:api')->get('/jurnal/delete/{id}', 'JurnalController@destroy');
 /*======== END OF NERACA AWAL ==========*/
 
-Route::middleware('auth:api')->get('buku_besar', 'LaporanController@buku_besar');
+Route::middleware('auth:api')->get('buku-besar', 'LaporanController@buku_besar');
+Route::middleware('auth:api')->get('laba-rugi', 'LaporanController@laba_rugi');
+Route::middleware('auth:api')->get('perubahan-modal', 'LaporanController@perubahan_modal');
+Route::middleware('auth:api')->get('neraca', 'LaporanController@neraca');

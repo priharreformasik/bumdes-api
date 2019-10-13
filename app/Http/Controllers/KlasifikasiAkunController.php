@@ -31,12 +31,13 @@ class KlasifikasiAkunController extends Controller
 
       $data = KlasifikasiAkun::create([
               'id' => $request->id,
-              'nama' =>$request->nama,
+              'nama' => $request->nama,
               'id_parent_akun' => request('id_parent_akun'),
               ]);
+      $klasifikasi = KlasifikasiAkun::where('id', $request->id)->get();
       return response()->json([
         'status'=>'success',
-        'result'=>$data
+        'result'=>$klasifikasi
       ]);
     }
 
@@ -46,9 +47,12 @@ class KlasifikasiAkunController extends Controller
         $data->nama=$request->get('nama');
         $data->id_parent_akun=$request->get('id_parent_akun');
         $data->save();
+
+
       return response()->json([
         'status'=>'successsssss',
         'result'=> $data ,
+        'cek'=> 'Select '
       ]);
     }
 

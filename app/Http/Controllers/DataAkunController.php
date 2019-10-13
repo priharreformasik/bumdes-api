@@ -35,9 +35,10 @@ class DataAkunController extends Controller
               'nama' =>$request->nama,
               'posisi_normal' => request('posisi_normal')
               ]);
+      $akun = DataAkun::where('id', $request->id)->get();
       return response()->json([
         'status'=>'success',
-        'result'=>$data
+        'result'=>$akun
       ]);
     }
 

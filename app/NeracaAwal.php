@@ -14,4 +14,9 @@ class NeracaAwal extends Model
     {
         return $this->hasMany('App\DataAkun', 'id_neraca_awal', 'id');
     }
+
+    public function jurnal()
+    {
+        return $this->hasOne('App\Jurnal', 'id_neraca_awal', 'id');
+    }
 }

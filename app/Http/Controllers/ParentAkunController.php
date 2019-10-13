@@ -21,10 +21,12 @@ class ParentAkunController extends Controller
         'id' => request('id'),
         'nama' => request('nama')
       ]);
+
+      $akun = ParentAkun::where('id', $request->id)->get();
     
       return response()->json([
         'status'=>'successsssss',
-        'result'=> $parent 
+        'result'=> $akun
       ]);
     }
 

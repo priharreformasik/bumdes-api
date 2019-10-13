@@ -16,26 +16,26 @@ class JurnalController extends Controller
         $month = $request->input('month');
         $year = $request->input('year');
         $jurnal = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
-        						->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                                ->whereRaw('MONTH(tanggal) = '.$month)
-                                ->whereRaw('YEAR(tanggal) = '.$year)
-                                ->select('jurnal.tanggal','kwitansi.no_kwitansi','kwitansi.keterangan','data_akun.id','data_akun.nama','jurnal.posisi_normal','jurnal.jumlah')
-                                ->orderBy('jurnal.tanggal')
-                                ->orderBy('data_akun.id')
-                                ->get();
+        						    ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+                        ->whereRaw('MONTH(tanggal) = '.$month)
+                        ->whereRaw('YEAR(tanggal) = '.$year)
+                        ->select('jurnal.tanggal','kwitansi.no_kwitansi','kwitansi.keterangan','data_akun.id','data_akun.nama','jurnal.posisi_normal','jurnal.jumlah')
+                        ->orderBy('jurnal.tanggal')
+                        ->orderBy('data_akun.id')
+                        ->get();
         $total_kredit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                                            ->where('jurnal.posisi_normal','k')
-                                            ->whereRaw('MONTH(tanggal) = '.$month)
-                                            ->whereRaw('YEAR(tanggal) = '.$year)
-                                            ->sum('jumlah');
+                          ->where('jurnal.posisi_normal','k')
+                          ->whereRaw('MONTH(tanggal) = '.$month)
+                          ->whereRaw('YEAR(tanggal) = '.$year)
+                          ->sum('jumlah');
 
         $total_debit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                                            ->where('jurnal.posisi_normal','d')
-                                            ->whereRaw('MONTH(tanggal) = '.$month)
-                                            ->whereRaw('YEAR(tanggal) = '.$year)
-                                            ->sum('jumlah');
+                          ->where('jurnal.posisi_normal','d')
+                          ->whereRaw('MONTH(tanggal) = '.$month)
+                          ->whereRaw('YEAR(tanggal) = '.$year)
+                          ->sum('jumlah');
         return response()->json([
            'status'=>'success',
            'jurnal'=> $jurnal,
