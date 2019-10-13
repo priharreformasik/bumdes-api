@@ -57,6 +57,7 @@ Route::middleware('auth:api')->get('/neraca-awal/delete/{id}', 'NeracaAwalContro
 /*======== START OF NERACA AWAL ==========*/
 Route::middleware('auth:api')->get('jurnal', 'JurnalController@show');
 Route::middleware('auth:api')->post('/jurnal/store', 'JurnalController@store');
+Route::middleware('auth:api')->post('/jurnal/store_jurnal', 'JurnalController@store_jurnal');
 Route::middleware('auth:api')->put('/jurnal/update/{id}', 'JurnalController@update');
 Route::middleware('auth:api')->get('/jurnal/delete/{id}', 'JurnalController@destroy');
 /*======== END OF NERACA AWAL ==========*/

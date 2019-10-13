@@ -34,10 +34,9 @@ class LaporanController extends Controller
                                 // ->select('jurnal.tanggal','kwitansi.keterangan','data_akun.id','data_akun.nama','jurnal.posisi_normal','jurnal.jumlah')
                                 // ->select('jurnal.tanggal', 'kwitansi.keterangan', '@k:=if(jurnal.posisi_normal="k",jumlah,0) as Kredit', '@d:=if(jurnal.posisi_normal="d",jumlah,0) as Debit','@s:=@s+@d-@k as saldo')
                                 ->select('jurnal.tanggal','kwitansi.keterangan',
-                                    DB::raw('@s:='.$saldo_awal),
+                                    // DB::raw('@s:=if(neraca_awal.id_data_akun = '.$akun.', neraca_awal.jumlah,0) as Saldo_Awal'),
                                     DB::raw('@d:=if(jurnal.posisi_normal="d",jurnal.jumlah,0) as Debit'),
                                 	DB::raw('@k:=if(jurnal.posisi_normal="k",jurnal.jumlah,0) as Kredit'),
-                                	// DB::raw('@s:=if(neraca_awal.id_data_akun = '.$akun.', neraca_awal.jumlah,0) as Saldo_Awal'),
                                 	DB::raw('@s:=@s+@d-@k as saldo')
                                 )
                                 ->orderBy('jurnal.tanggal')
