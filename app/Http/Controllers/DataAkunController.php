@@ -13,7 +13,7 @@ class DataAkunController extends Controller
       if ($request->id) {
           $data = DataAkun::where('id', $request->id)->get();
       }elseif ($request->id_klasifikasi_akun) {
-          $data = DataAkun::where('id_klasifikasi_akun.data_akun', $request->id_klasifikasi_akun)->get();
+          $data = DataAkun::where('data_akun.id_klasifikasi_akun', $request->id_klasifikasi_akun)->get();
       }else {
           $data = DataAkun::all();
       }
