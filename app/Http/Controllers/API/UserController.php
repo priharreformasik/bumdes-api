@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use Hash;
 
 class UserController extends Controller
 {
@@ -71,11 +72,61 @@ class UserController extends Controller
             'result'=>$user
             ]);
     }
-	/**
-     * details api
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function update(Request $request,$id)
+    {
+        $this->validate($request, [            
+         'nama' => 'required',
+         'email' => 'required|email|max:255|unique:users,email,'.$request->id,
+         'alamat' => 'required',
+         'no_telepon' => 'required|regex:/^[0-9]+$/|max:25',
+        ]);
+
+        $data = User::find($id);
+        $data->nama=$request->get('nama',$data->nama);
+        $data->email=$request->get('email',$data->email);
+        $data->alamat=$request->get('alamat');
+        $data->no_telepon=$request->get('no_telepon');
+        $data->save();
+
+
+      return response()->json([
+        'status'=>'successsssss',
+        'result'=> $data ,
+      ]);
+    }
+	
+    public function show($id)
+    {
+      $user = User::find($id);
+      return response()->json(['success' => $user]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->json([
+            'message' => 'Successfully logged out'
+        ]);
+    }
+
+    public function update_password_api(Request $request){
+
+     $ubahPassword = User::find(Auth::user()->id);
+     if(Hash::check($request->password_lama,$ubahPassword->password)){
+       if($request->password_baru == $request->konfirmasi){
+         $ubahPassword->password = bcrypt($request->konfirmasi);
+         $ubahPassword->save();
+         //$status=='success';
+         $status['status'] = 'sukses';
+         return response()->json(['password'=>$status]);
+       }
+     }else{
+        $status['status'] = 'Password Lama Yang Anda Masukkan Tidak Benar!';
+         return response()->json(['password'=>$status]);
+     }
+   }
+
     public function details()
     {
         $user = Auth::user();

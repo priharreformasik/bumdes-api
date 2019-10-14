@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\ParentAkun;
+use Illuminate\Support\Facades\Validator;
 
 class ParentAkunController extends Controller
 {
@@ -17,6 +18,15 @@ class ParentAkunController extends Controller
 
     public function store(Request $request)
     {
+
+      $validator = Validator::make($request->all(), [
+        'nama' => 'required',
+        'id' => 'required|unique:parent_akun',
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
       $parent = ParentAkun::create([
         'id' => request('id'),
         'nama' => request('nama')
@@ -32,9 +42,18 @@ class ParentAkunController extends Controller
 
     public function update(Request $request,$id)
     {
-      	$data = ParentAkun::find($id);
-      	$data->nama=$request->get('nama');
-        $data->save();
+      $validator = Validator::make($request->all(), [
+        'nama' => 'required',
+        'id' => 'required|unique:parent_akun,id,'.$request->id,
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
+      $data = ParentAkun::find($id);
+      $data->nama=$request->get('nama');
+      $data->save();
+
       return response()->json([
         'status'=>'successsssss',
         'result'=> $data ,

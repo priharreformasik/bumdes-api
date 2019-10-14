@@ -27,45 +27,52 @@ class LaporanController extends Controller
 
         $buku_besar = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         						->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                                ->leftjoin('neraca_awal','neraca_awal.id','=','jurnal.id_neraca_awal')
+                                ->leftjoin('neraca_awal','neraca_awal.id_data_akun','=','jurnal.id_data_akun')
         						->whereRaw('jurnal.id_data_akun = '.$akun)
                                 ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
                                 ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
-                                // ->select('jurnal.tanggal','kwitansi.keterangan','data_akun.id','data_akun.nama','jurnal.posisi_normal','jurnal.jumlah')
-                                // ->select('jurnal.tanggal', 'kwitansi.keterangan', '@k:=if(jurnal.posisi_normal="k",jumlah,0) as Kredit', '@d:=if(jurnal.posisi_normal="d",jumlah,0) as Debit','@s:=@s+@d-@k as saldo')
-                                ->select('jurnal.tanggal','kwitansi.keterangan',
-                                    // DB::raw('@s:=if(neraca_awal.id_data_akun = '.$akun.', neraca_awal.jumlah,0) as Saldo_Awal'),
+                                ->select('jurnal.id','jurnal.tanggal','kwitansi.keterangan',
+                                    DB::raw('@s:=if(neraca_awal.id_data_akun = '.$akun.', neraca_awal.jumlah,0) as Saldo_Awal'),
                                     DB::raw('@d:=if(jurnal.posisi_normal="d",jurnal.jumlah,0) as Debit'),
-                                	DB::raw('@k:=if(jurnal.posisi_normal="k",jurnal.jumlah,0) as Kredit'),
-                                	DB::raw('@s:=@s+@d-@k as saldo')
+                                	DB::raw('@k:=if(jurnal.posisi_normal="k",jurnal.jumlah,0) as Kredit')
                                 )
                                 ->orderBy('jurnal.tanggal')
                                 ->get();
-                                // dd($buku_besar);
-        // $saldo_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
-        // 						->whereRaw('neraca_awal.id_data_akun = '.$akun)
-        //                         ->whereRaw('YEAR(tanggal) = '.$year)
-        //                         ->select('neraca_awal.jumlah')
-        //                         ->first();
         
+
+        $saldo_akhir = 0;
+
+        foreach ($buku_besar as $key => $value) {
+            if ($key == 0) {
+                $saldo_akhir = $value->Saldo_Awal+$value->Debit-$value->Kredit;
+            } else {
+                $saldo_akhir = $saldo_akhir+$value->Debit-$value->Kredit;
+            }
+            $buku_besar[$key]['Saldo'] = $saldo_akhir;
+        }
+
         // $total_kredit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
-        // 									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+        //                                  ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
         //                                     ->where('jurnal.posisi_normal','k')
+        //                                     ->whereRaw('jurnal.id_data_akun = '.$akun)
         //                                     ->whereRaw('MONTH(tanggal) = '.$month)
         //                                     ->whereRaw('YEAR(tanggal) = '.$year)
         //                                     ->sum('jumlah');
 
         // $total_debit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
-        // 									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+        //                                  ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
         //                                     ->where('jurnal.posisi_normal','d')
+        //                                     ->whereRaw('jurnal.id_data_akun = '.$akun)
         //                                     ->whereRaw('MONTH(tanggal) = '.$month)
         //                                     ->whereRaw('YEAR(tanggal) = '.$year)
         //                                     ->sum('jumlah');
+
         return response()->json([
            'status'=>'success',
-           'saldo_awal'=>$saldo_awal,
-           // 'saldo_akhie'=>$total_debit,           
-           'buku_besar'=> $buku_besar
+           'saldo_awal'=>$saldo_awal,         
+           'buku_besar'=> $buku_besar,
+           // 'total_kredit' => $total_kredit,
+           // 'total_debit' =>$total_debit
          ]);
 
       }elseif (empty($buku_besar[0]->id)) {
@@ -91,8 +98,34 @@ class LaporanController extends Controller
                                 ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
                                 ->select('data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
                                 ->orderBy('jurnal.tanggal')
-                                ->get();
+                                ->first()->toArray();
 
+        $nilai_akun_wisata = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+                                ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+                                ->leftjoin('neraca_awal','neraca_awal.id_data_akun','=','jurnal.id_data_akun')
+                                ->where('data_akun.id','=','4110')
+                                ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
+                                ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
+                                ->select(DB::raw('@s:=if(neraca_awal.id_data_akun = 4110, neraca_awal.jumlah,0) as Saldo_Awal'),
+                                    DB::raw('@d:=if(jurnal.posisi_normal="d",jurnal.jumlah,0) as Debit'),
+                                    DB::raw('@k:=if(jurnal.posisi_normal="k",jurnal.jumlah,0) as Kredit')
+                                )
+                                ->orderBy('jurnal.tanggal')
+                                ->get();
+       
+        if ($nilai_akun_wisata->isEmpty()) {
+        } else {
+            foreach ($nilai_akun_wisata as $key => $value) {
+                if ($key == 0) {
+                    $saldo_akhir = $value->Saldo_Awal+$value->Debit-$value->Kredit;
+                } else {
+                    $saldo_akhir = $saldo_akhir+$value->Debit-$value->Kredit;
+                }
+                $nilai_akun_wisata[$key]['Saldo'] = $saldo_akhir;
+            }
+            $nilai_akun_wisata = $nilai_akun_wisata->last();
+            $pendapatan_wisata['nilai_akun'] =  $nilai_akun_wisata->Saldo;
+        }
 
         $pendapatan_homestay = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                 ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
@@ -103,7 +136,35 @@ class LaporanController extends Controller
                                 ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
                                 ->select('data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
                                 ->orderBy('jurnal.tanggal')
+                                ->first()->toArray();
+
+        $nilai_akun_homestay = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+                                ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+                                ->leftjoin('neraca_awal','neraca_awal.id_data_akun','=','jurnal.id_data_akun')
+                                ->where('data_akun.id','=','4120')
+                                ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
+                                ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
+                                ->select(DB::raw('@s:=if(neraca_awal.id_data_akun = 4120, neraca_awal.jumlah,0) as Saldo_Awal'),
+                                    DB::raw('@d:=if(jurnal.posisi_normal="d",jurnal.jumlah,0) as Debit'),
+                                    DB::raw('@k:=if(jurnal.posisi_normal="k",jurnal.jumlah,0) as Kredit')
+                                )
+                                ->orderBy('jurnal.tanggal')
                                 ->get();
+       
+        if ($nilai_akun_homestay->isEmpty()) {
+        } else {
+            foreach ($nilai_akun_homestay as $key => $value) {
+                if ($key == 0) {
+                    $saldo_akhir = $value->Saldo_Awal+$value->Debit-$value->Kredit;
+                } else {
+                    $saldo_akhir = $saldo_akhir+$value->Debit-$value->Kredit;
+                }
+                $nilai_akun_homestay[$key]['Saldo'] = $saldo_akhir;
+            }
+
+            $nilai_akun_homestay = $nilai_akun_homestay->last();
+            $pendapatan_homestay['nilai_akun'] =  $nilai_akun_homestay->Saldo;
+        }
 
         $pendapatan_resto = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                 ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
@@ -114,7 +175,35 @@ class LaporanController extends Controller
                                 ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
                                 ->select('data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
                                 ->orderBy('jurnal.tanggal')
+                                ->first()->toArray();
+
+        $nilai_akun_resto = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+                                ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+                                ->leftjoin('neraca_awal','neraca_awal.id_data_akun','=','jurnal.id_data_akun')
+                                ->where('data_akun.id','=','4130')
+                                ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
+                                ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
+                                ->select(DB::raw('@s:=if(neraca_awal.id_data_akun = 4130, neraca_awal.jumlah,0) as Saldo_Awal'),
+                                    DB::raw('@d:=if(jurnal.posisi_normal="d",jurnal.jumlah,0) as Debit'),
+                                    DB::raw('@k:=if(jurnal.posisi_normal="k",jurnal.jumlah,0) as Kredit')
+                                )
+                                ->orderBy('jurnal.tanggal')
                                 ->get();
+       
+        if ($nilai_akun_resto->isEmpty()) {
+        } else {
+            foreach ($nilai_akun_resto as $key => $value) {
+                if ($key == 0) {
+                    $saldo_akhir = $value->Saldo_Awal+$value->Debit-$value->Kredit;
+                } else {
+                    $saldo_akhir = $saldo_akhir+$value->Debit-$value->Kredit;
+                }
+                $nilai_akun_resto[$key]['Saldo'] = $saldo_akhir;
+            }
+
+            $nilai_akun_resto = $nilai_akun_resto->last();
+            $pendapatan_resto['nilai_akun'] =  $nilai_akun_resto->Saldo;
+        }
 
         $pendapatan_event = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                 ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
@@ -125,16 +214,50 @@ class LaporanController extends Controller
                                 ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
                                 ->select('data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
                                 ->orderBy('jurnal.tanggal')
-                                ->get();
+                                ->first()->toArray();
 
-            return response()->json([
+        $nilai_akun_event = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+                                ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+                                ->leftjoin('neraca_awal','neraca_awal.id_data_akun','=','jurnal.id_data_akun')
+                                ->where('data_akun.id','=','4140')
+                                ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
+                                ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
+                                ->select(DB::raw('@s:=if(neraca_awal.id_data_akun = 4140, neraca_awal.jumlah,0) as Saldo_Awal'),
+                                    DB::raw('@d:=if(jurnal.posisi_normal="d",jurnal.jumlah,0) as Debit'),
+                                    DB::raw('@k:=if(jurnal.posisi_normal="k",jurnal.jumlah,0) as Kredit')
+                                )
+                                ->orderBy('jurnal.tanggal')
+                                ->get();
+       
+        if ($nilai_akun_event->isEmpty()) {
+        } else {
+            foreach ($nilai_akun_event as $key => $value) {
+                if ($key == 0) {
+                    $saldo_akhir = $value->Saldo_Awal+$value->Debit-$value->Kredit;
+                } else {
+                    $saldo_akhir = $saldo_akhir+$value->Debit-$value->Kredit;
+                }
+                $nilai_akun_event[$key]['Saldo'] = $saldo_akhir;
+            }
+
+            $nilai_akun_event = $nilai_akun_event->last();
+            $pendapatan_event['nilai_akun'] =  $nilai_akun_event->Saldo;
+        }
+
+        return response()->json([
            'status'=>'success',
-           // 'saldo_awal'=>$saldo_awal,
-           // 'saldo_akhie'=>$total_debit,           
-           'Pendapatan'=> $pendapatan_wisata,$pendapatan_homestay,$pendapatan_resto,$pendapatan_event
+           'Pendapatan'=> [$pendapatan_wisata,$pendapatan_homestay,$pendapatan_resto,$pendapatan_event],
+           'total'=>$pendapatan_wisata['nilai_akun']+$pendapatan_homestay['nilai_akun']+$pendapatan_resto['nilai_akun']+$pendapatan_event['nilai_akun']
          ]);
         }
     }
+
+    // public function total_biaya()
+    // {
+    //     for ($i=5110; $i = 5200 ; $i+10) { 
+            
+    //     }
+    // }
 
     public function perubahan_modal(Request $request)
     {

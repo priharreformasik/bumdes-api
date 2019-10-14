@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\DataAkun;
 use App\NeracaAwal;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 use DB;
 
 class NeracaAwalController extends Controller
@@ -48,27 +49,58 @@ class NeracaAwalController extends Controller
 
     public function store(Request $request){
 
+      $validator = Validator::make($request->all(), [
+        'tanggal' => 'required',
+        'id_data_akun' => 'required',
+        'jumlah' => 'required'
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
       $data = NeracaAwal::create([
               'id_data_akun' => request('id_data_akun'),
               'tanggal' => request('tanggal'),
               'jumlah' => request('jumlah')
               ]);
+      $neraca_awal = NeracaAwal::where('neraca_awal.id', $data->id)
+                                ->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
+                                ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
+                                ->first();
+
       return response()->json([
         'status'=>'success',
-        'result'=>$data
+        'result'=>$neraca_awal
       ]); 
     }
 
     public function update(Request $request,$id)
     {
-        $data = NeracaAwal::find($id);
-        $data->id_data_akun=$request->get('id_data_akun');
-        $data->tanggal=$request->get('tanggal');        
-        $data->jumlah=$request->get('jumlah');
-        $data->save();
+      $validator = Validator::make($request->all(), [
+        'tanggal' => 'required',
+        'id_data_akun' => 'required',
+        'jumlah' => 'required'
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
+      $data = NeracaAwal::find($id);
+      $data->id_data_akun=$request->get('id_data_akun');
+      $data->tanggal=$request->get('tanggal');        
+      $data->jumlah=$request->get('jumlah');
+      $data->save();
+
+      $neraca_awal = NeracaAwal::where('neraca_awal.id', $data->id)
+                                ->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
+                                ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
+                                ->first();
+
       return response()->json([
         'status'=>'successsssss',
-        'result'=> $data ,
+        'result'=> $neraca_awal ,
       ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\DataAkun;
 use App\KlasifikasiAkun;
+use Illuminate\Support\Facades\Validator;
 
 class DataAkunController extends Controller
 {
@@ -29,6 +30,16 @@ class DataAkunController extends Controller
 
     public function store(Request $request){
 
+      $validator = Validator::make($request->all(), [
+        'nama' => 'required',
+        'id' => 'required|unique:data_akun',
+        'id_klasifikasi_akun' => 'required',
+        'posisi_normal' => 'required'
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
       $data = DataAkun::create([
               'id' => $request->id,
               'id_klasifikasi_akun' => request('id_klasifikasi_akun'),
@@ -42,19 +53,29 @@ class DataAkunController extends Controller
       ]);
     }
 
-    //  public function update(Request $request,$id)
-    // {
-    //     $data = DataAkun::find($id);
-    //     // dd($data);
-    //     $data->id_klasifikasi_akun=$request->get('id_klasifikasi_akun');
-    //     $data->posisi_normal=$request->get('posisi_normal')
-    //     $data->nama=$request->get('nama');
-    //     $data->save();
-    //   return response()->json([
-    //     'status'=>'successsssss',
-    //     'result'=> $data ,
-    //   ]);
-    // }
+    public function update(Request $request,$id)
+    {
+      $validator = Validator::make($request->all(), [
+        'nama' => 'required',
+        'id' => 'required|unique:data_akun,id,'.$request->id,
+        'id_klasifikasi_akun' => 'required',
+        'posisi_normal' => 'required'
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
+      $data = DataAkun::find($id);
+      $data->id_klasifikasi_akun=$request->get('id_klasifikasi_akun');
+      $data->posisi_normal=$request->get('posisi_normal');
+      $data->nama=$request->get('nama');
+      $data->save();
+
+      return response()->json([
+        'status'=>'successsssss',
+        'result'=> $data ,
+      ]);
+    }
 
     public function destroy($id)
     {
