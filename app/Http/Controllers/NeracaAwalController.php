@@ -17,8 +17,10 @@ class NeracaAwalController extends Controller
         $month = $request->input('month');
         $year = $request->input('year');
         $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                  ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
                                   ->whereRaw('MONTH(tanggal) = '.$month)
                                   ->whereRaw('YEAR(tanggal) = '.$year)
+                                  ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
                                   ->orderBy('data_akun.id')
                                   ->get();
         $total_kredit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
