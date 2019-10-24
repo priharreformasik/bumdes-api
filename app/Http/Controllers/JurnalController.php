@@ -53,38 +53,36 @@ class JurnalController extends Controller
 
     public function store(Request $request){
 
-	     $this->validate($request, [
-	      'no_kwitansi' => 'required',
-	      'keterangan' => 'required',
-	      'id_data_akun' => 'required',
-	      'tanggal' => 'required',
-	      'jumlah' => 'required',
-	      'posisi_normal' => 'required',
-	    ],
-	    [
-	      'no_kwitansi.required' => 'No kwitansi tidak boleh kosong!',
-	      'keterangan.required' => 'Keterangan tidak boleh kosong!',
-	      'id_data_akun.required' => 'Data akun sudah digunakan!',
-	      'tanggal.required' => 'Tanggal tidak boleh kosong!',
-	      'jumlah.required' => 'Jumlah tidak boleh kosong!',
-	      'posisi_normal.required' => 'Posisi normal tidak boleh kosong!',
-	    ]);
-		$data = Kwitansi::create([			
-		          'no_kwitansi'=>$request->no_kwitansi,
-		          'keterangan'=>$request->keterangan,
+
+       $validator = Validator::make($request->all(), [
+            'no_kwitansi' => 'required|unique:kwitansi',
+            'keterangan' => 'required',
+            'id_data_akun' => 'required',
+            'tanggal' => 'required',
+            'jumlah' => 'required',
+            'posisi_normal' => 'required',
+        ]);
+        if ($validator->fails()) {
+                return response()->json(['error'=>$validator->errors()], 401);
+            }
+
+        $data = Kwitansi::create([      
+              'no_kwitansi'=>$request->no_kwitansi,
+              'keterangan'=>$request->keterangan,
               ])->jurnal()->create([
-		            'id_data_akun' => request('id_data_akun'),
-	              'tanggal' => request('tanggal'),
-	              'jumlah' => request('jumlah'),
-	              'posisi_normal' => request('posisi_normal')
-		      ]);
-		$jurnal = Kwitansi::where('id',$data->id_kwitansi)->with('jurnal.data_akun')->first();
-		// dd($jurnal);
+                'id_data_akun' => request('id_data_akun'),
+                'tanggal' => request('tanggal'),
+                'jumlah' => request('jumlah'),
+                'posisi_normal' => request('posisi_normal')
+          ]);
+      $jurnal = Kwitansi::where('id',$data->id_kwitansi)->with('jurnal.data_akun')->first();
+    // dd($jurnal);
 
       return response()->json([
         'status'=>'success',
         'result'=>$jurnal
       ]); 
+    
     }
 
     public function store_jurnal(Request $request){

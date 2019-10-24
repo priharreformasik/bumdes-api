@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\KlasifikasiAkun;
 use App\ParentAkun;
+use Illuminate\Support\Facades\Validator;
 
 class KlasifikasiAkunController extends Controller
 {
@@ -29,6 +30,15 @@ class KlasifikasiAkunController extends Controller
 
     public function store(Request $request){
 
+      $validator = Validator::make($request->all(), [
+        'nama' => 'required',
+        'id' => 'required|unique:klasifikasi_akun',
+        'id_parent_akun' => 'required'
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
       $data = KlasifikasiAkun::create([
               'id' => $request->id,
               'nama' => $request->nama,
@@ -43,16 +53,24 @@ class KlasifikasiAkunController extends Controller
 
     public function update(Request $request,$id)
     {
-        $data = KlasifikasiAkun::find($id);
-        $data->nama=$request->get('nama');
-        $data->id_parent_akun=$request->get('id_parent_akun');
-        $data->save();
 
+      $validator = Validator::make($request->all(), [
+        'nama' => 'required',
+        'id' => 'required|unique:klasifikasi_akun,id,'.$request->id,
+        'id_parent_akun' => 'required',
+        ]);
+      if ($validator->fails()) {
+        return response()->json(['error'=>$validator->errors()], 401);
+      }
+
+      $data = KlasifikasiAkun::find($id);
+      $data->nama=$request->get('nama');
+      $data->id_parent_akun=$request->get('id_parent_akun');
+      $data->save();
 
       return response()->json([
         'status'=>'successsssss',
         'result'=> $data ,
-        'cek'=> 'Select '
       ]);
     }
 
