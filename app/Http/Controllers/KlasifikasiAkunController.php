@@ -28,6 +28,15 @@ class KlasifikasiAkunController extends Controller
        ]);
     }
 
+    public function detail($id)
+    {
+      $data = KlasifikasiAkun::where('id', $id)->with('parent_akun')->first();
+      return response()->json([
+         'status'=>'success',
+         'parent'=> $data
+       ]);
+    }
+
     public function store(Request $request){
 
       $validator = Validator::make($request->all(), [
@@ -35,6 +44,7 @@ class KlasifikasiAkunController extends Controller
         'id' => 'required|unique:klasifikasi_akun',
         'id_parent_akun' => 'required'
         ]);
+
       if ($validator->fails()) {
         return response()->json(['error'=>$validator->errors()], 401);
       }
@@ -44,10 +54,12 @@ class KlasifikasiAkunController extends Controller
               'nama' => $request->nama,
               'id_parent_akun' => request('id_parent_akun'),
               ]);
+
       $klasifikasi = KlasifikasiAkun::where('id', $request->id)->get();
+
       return response()->json([
         'status'=>'success',
-        'result'=>$klasifikasi
+        'result'=> $klasifikasi
       ]);
     }
 

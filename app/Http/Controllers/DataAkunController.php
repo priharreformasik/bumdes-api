@@ -28,6 +28,15 @@ class DataAkunController extends Controller
        ]);
     }
 
+    public function detail($id)
+    {
+      $data = DataAkun::where('id', $id)->with('klasifikasi_akun.parent_akun')->first();
+      return response()->json([
+         'status'=>'success',
+         'parent'=> $data
+       ]);
+    }
+
     public function store(Request $request){
 
       $validator = Validator::make($request->all(), [

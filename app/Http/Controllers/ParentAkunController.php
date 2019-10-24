@@ -16,6 +16,15 @@ class ParentAkunController extends Controller
        ]);
      }
 
+    public function detail($id)
+    {
+      $parent = ParentAkun::where('id', $id)->first();
+      return response()->json([
+         'status'=>'success',
+         'parent'=> $parent
+       ]);
+    }
+
     public function store(Request $request)
     {
 

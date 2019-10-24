@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Http\Controllers\LabaRugiController;
 use Illuminate\Http\Request;
 use App\DataAkun;
 use App\Jurnal;
@@ -162,6 +162,8 @@ class PerubahanEkuitasController extends Controller
             $nilai_akun_berjalan = $nilai_akun_berjalan->last();
             $saldo_berjalan['nilai_akun'] =  $nilai_akun_berjalan->Saldo;
         }
+
+        return (new LabaRugiController)->laba_rugi();
 
         return response()->json([
            'status'=>'success',       

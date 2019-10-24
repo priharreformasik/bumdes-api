@@ -52,6 +52,15 @@ class JurnalController extends Controller
       
     }
 
+    public function detail($id)
+    {
+      $data = Jurnal::where('id', $id)->with('kwitansi')->first();
+      return response()->json([
+         'status'=>'success',
+         'parent'=> $data
+       ]);
+    }
+
     public function store(Request $request){
 
 

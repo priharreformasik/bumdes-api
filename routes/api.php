@@ -34,6 +34,7 @@ Route::get('detail/{id}', 'API\UserController@show')->middleware('auth:api');
 Route::middleware('auth:api')->get('parent-akun', 'ParentAkunController@parent');
 Route::middleware('auth:api')->post('/parent-akun/store', 'ParentAkunController@store');
 Route::middleware('auth:api')->put('/parent-akun/update/{id}', 'ParentAkunController@update');
+Route::middleware('auth:api')->get('/parent-akun/detail/{id}', 'ParentAkunController@detail');
 Route::middleware('auth:api')->get('/parent-akun/delete/{id}', 'ParentAkunController@destroy');
 /*======== END OF PARENT AKUN ==========*/
 
@@ -41,6 +42,7 @@ Route::middleware('auth:api')->get('/parent-akun/delete/{id}', 'ParentAkunContro
 Route::middleware('auth:api')->get('klasifikasi-akun', 'KlasifikasiAkunController@show');
 Route::middleware('auth:api')->post('/klasifikasi-akun/store', 'KlasifikasiAkunController@store');
 Route::middleware('auth:api')->put('/klasifikasi-akun/update/{id}', 'KlasifikasiAkunController@update');
+Route::middleware('auth:api')->get('/klasifikasi-akun/detail/{id}', 'KlasifikasiAkunController@detail');
 Route::middleware('auth:api')->get('/klasifikasi-akun/delete/{id}', 'KlasifikasiAkunController@destroy');
 /*======== END OF PARENT AKUN ==========*/
 
@@ -48,6 +50,7 @@ Route::middleware('auth:api')->get('/klasifikasi-akun/delete/{id}', 'Klasifikasi
 Route::middleware('auth:api')->get('data-akun', 'DataAkunController@show');
 Route::middleware('auth:api')->post('/data-akun/store', 'DataAkunController@store');
 Route::middleware('auth:api')->put('/data-akun/update/{id}', 'DataAkunController@update');
+Route::middleware('auth:api')->get('/data-akun/detail/{id}', 'DataAkunController@detail');
 Route::middleware('auth:api')->get('/data-akun/delete/{id}', 'DataAkunController@destroy');
 /*======== END OF DATA AKUN ==========*/
 
@@ -55,14 +58,16 @@ Route::middleware('auth:api')->get('/data-akun/delete/{id}', 'DataAkunController
 Route::middleware('auth:api')->get('neraca-awal', 'NeracaAwalController@show');
 Route::middleware('auth:api')->post('/neraca-awal/store', 'NeracaAwalController@store');
 Route::middleware('auth:api')->put('/neraca-awal/update/{id}', 'NeracaAwalController@update');
+Route::middleware('auth:api')->get('/neraca-awal/detail/{id}', 'NeracaAwalController@detail');
 Route::middleware('auth:api')->get('/neraca-awal/delete/{id}', 'NeracaAwalController@destroy');
 /*======== END OF NERACA AWAL ==========*/
 
-/*======== START OF NERACA AWAL ==========*/
+/*======== START OF JURNAL ==========*/
 Route::middleware('auth:api')->get('jurnal', 'JurnalController@show');
 Route::middleware('auth:api')->post('/jurnal/store', 'JurnalController@store');
 Route::middleware('auth:api')->post('/jurnal/store_jurnal', 'JurnalController@store_jurnal');
 Route::middleware('auth:api')->put('/jurnal/update/{id}', 'JurnalController@update');
+Route::middleware('auth:api')->get('/jurnal/detail/{id}', 'JurnalController@detail');
 Route::middleware('auth:api')->get('/jurnal/delete/{id}', 'JurnalController@destroy');
 /*======== END OF NERACA AWAL ==========*/
 
