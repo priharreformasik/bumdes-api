@@ -23,6 +23,10 @@ Route::get('details', 'API\UserController@details');
 Route::group(['middleware' => 'auth:api'], function(){
 Route::get('details', 'API\UserController@details');
 });
+Route::get('logout', 'API\UserController@logout')->middleware('auth:api');
+Route::put('update/{id}', 'API\UserController@update')->middleware('auth:api');
+Route::put('ganti_password/{id}', 'API\UserController@update_password_api')->middleware('auth:api');
+Route::get('detail/{id}', 'API\UserController@show')->middleware('auth:api');
 
 /*======== END OF AUTH ==========*/
 
@@ -62,12 +66,16 @@ Route::middleware('auth:api')->put('/jurnal/update/{id}', 'JurnalController@upda
 Route::middleware('auth:api')->get('/jurnal/delete/{id}', 'JurnalController@destroy');
 /*======== END OF NERACA AWAL ==========*/
 
+
 // Route::middleware('auth:api')->get('buku-besar', 'LaporanController@buku_besar');
 //Route::middleware('auth:api')->get('laba-rugi', 'LaporanController@laba_rugi');
 //Route::middleware('auth:api')->get('perubahan-modal', 'LaporanController@perubahan_modal');
 //Route::middleware('auth:api')->get('neraca', 'LaporanController@neraca');
 
-Route::middleware('auth:api')->get('buku-besar', 'BukuBesarController@buku_besar');
-Route::middleware('auth:api')->get('laba-rugi', 'LabaRugiController@laba_rugi');
-Route::middleware('auth:api')->get('perubahan-modal', 'PerubahanEkuitasController@perubahan_modal');
-Route::middleware('auth:api')->get('neraca', 'NeracaController@neraca');
+
+/*======== START OF LAPORAN ==========*/
+Route::middleware('auth:api')->get('buku-besar', 'LaporanController@buku_besar');
+Route::middleware('auth:api')->get('laba-rugi', 'LaporanController@laba_rugi');
+Route::middleware('auth:api')->get('perubahan-modal', 'LaporanController@perubahan_modal');
+Route::middleware('auth:api')->get('neraca', 'LaporanController@neraca');
+/*======== END OF LAPORAN ==========*/

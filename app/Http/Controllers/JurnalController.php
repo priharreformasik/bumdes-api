@@ -7,6 +7,7 @@ use App\DataAkun;
 use App\Jurnal;
 use App\Kwitansi;
 use DB;
+use Illuminate\Support\Facades\Validator;
 
 class JurnalController extends Controller
 {
