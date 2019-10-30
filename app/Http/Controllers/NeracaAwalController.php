@@ -185,7 +185,7 @@ class NeracaAwalController extends Controller
     public function store(Request $request){
 
       $validator = Validator::make($request->all(), [
-        'tanggal' => 'required',
+        'tanggal' => 'required|after_or_equal:'.date('Y-m-d',strtotime('+1 year', strtotime(request('tanggal')))),
         'id_data_akun' => 'required',
         'jumlah' => 'required'
         ]);
@@ -197,7 +197,7 @@ class NeracaAwalController extends Controller
               'id_data_akun' => request('id_data_akun'),
               'tanggal' => request('tanggal'),
               'jumlah' => request('jumlah'),
-              'tahun' => date('Y', strtotime(request('tanggal')))
+              // 'tahun' => date('Y', strtotime(request('tanggal')))
               ]);
       $neraca_awal = NeracaAwal::where('neraca_awal.id', $data->id)
                                 ->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
@@ -208,7 +208,7 @@ class NeracaAwalController extends Controller
 
       return response()->json([
         'status'=>'success',
-        'result'=>$neraca_awal
+        'result'=>date('Y-m-d',strtotime('+1 year', strtotime(request('tanggal'))))
       ]); 
     }
 
