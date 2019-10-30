@@ -8,7 +8,7 @@ class Jurnal extends Model
 {
     protected $table = 'jurnal';
     protected $fillable = ['id','id_kwitansi','tanggal','id_data_akun','jumlah','posisi_normal','saldo_akhir','id_neraca_awal'];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function kwitansi()
     {

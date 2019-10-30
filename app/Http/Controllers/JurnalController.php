@@ -83,7 +83,7 @@ class JurnalController extends Controller
                 'id_data_akun' => request('id_data_akun'),
                 'tanggal' => request('tanggal'),
                 'jumlah' => request('jumlah'),
-                'posisi_normal' => request('posisi_normal')
+                'posisi_normal' => request('posisi_normal'),
           ]);
       $jurnal = Kwitansi::where('id',$data->id_kwitansi)->with('jurnal.data_akun')->first();
     // dd($jurnal);

@@ -8,7 +8,7 @@ class KlasifikasiAkun extends Model
 {
     protected $table = 'klasifikasi_akun';
     protected $fillable = ['id','nama','id_parent_akun'];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function parent_akun()
     {

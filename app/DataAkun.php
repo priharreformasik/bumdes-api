@@ -8,7 +8,7 @@ class DataAkun extends Model
 {
     protected $table = 'data_akun';
     protected $fillable = ['id','id_klasifikasi_akun','nama','posisi_normal'];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function klasifikasi_akun()
     {

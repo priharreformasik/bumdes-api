@@ -18,7 +18,9 @@ class PerubahanEkuitasController extends Controller
         $year = $request->input('year');
         $array = [];
 
-        $iterasi = DataAkun::where('id_klasifikasi_akun',3)->get();
+        $id = [3,4,5,6,7];
+
+        $iterasi = DataAkun::whereIn('id_klasifikasi_akun',$id)->get();
 
         foreach ($iterasi as $i) { 
             $data = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
@@ -71,12 +73,19 @@ class PerubahanEkuitasController extends Controller
 
             $array[] = $data;
         }
+
+
+        $total_pendapatan = $array[3]['nilai_akun']+$array[4]['nilai_akun']+$array[5]['nilai_akun']+$array[6]['nilai_akun'];
+        $total_biaya = $array[7]['nilai_akun']+$array[8]['nilai_akun']+$array[9]['nilai_akun']+$array[10]['nilai_akun']+$array[8]['nilai_akun']+$array[9]['nilai_akun']+$array[10]['nilai_akun']+$array[11]['nilai_akun']+$array[12]['nilai_akun']+$array[11]['nilai_akun'];
+        $total_lain = $array[12]['nilai_akun']+$array[13]['nilai_akun'];
+        $laba_usaha = $total_pendapatan - $total_biaya;
+        $saldo_laba_rugi = $laba_usaha + $total_lain;
         
         return response()->json([
            'status'=>'success',       
            'MODAL AWAL'=> $array[0],
-           'SALDO LABA' =>[$array[1],$array[2]],
-           'TOTAL EKUITAS AKHIR PERIODE'=>$array[0]['nilai_akun']+$array[1]['nilai_akun']+$array[2]['nilai_akun']
+           'SALDO LABA' =>[$array[1], 'Saldo laba tahun berjalan'=> $saldo_laba_rugi],
+           'TOTAL EKUITAS AKHIR PERIODE'=>$array[0]['nilai_akun']+$array[1]['nilai_akun']+$saldo_laba_rugi
          ]);
         }
     }

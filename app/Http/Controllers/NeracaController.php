@@ -17,6 +17,14 @@ class NeracaController extends Controller
         $month = $request->input('month');
         $year = $request->input('year');
 
+        $array = [];
+
+        $id = [3,4,5,6,7,11,12];
+
+        $iterasi = DataAkun::whereIn('id_klasifikasi_akun',$id)->get();
+
+        foreach ($iterasi as $i) { 
+
         $kas = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                 ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
                                 ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')

@@ -8,7 +8,7 @@ class Kwitansi extends Model
 {
     protected $table = 'kwitansi';
     protected $fillable = ['id','no_kwitansi','keterangan'];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function jurnal()
     {

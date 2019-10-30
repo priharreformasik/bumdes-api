@@ -8,7 +8,7 @@ class ParentAkun extends Model
 {
     protected $table = 'parent_akun';
     protected $fillable = ['id','nama'];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function klasifikasi_akun()
     {

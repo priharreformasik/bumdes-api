@@ -30,7 +30,7 @@ class KlasifikasiAkunController extends Controller
 
     public function detail($id)
     {
-      $data = KlasifikasiAkun::where('id', $id)->with('parent_akun')->first();
+      $data = KlasifikasiAkun::where('id', $id)->first();
       return response()->json([
          'status'=>'success',
          'parent'=> $data
@@ -68,12 +68,17 @@ class KlasifikasiAkunController extends Controller
 
       $validator = Validator::make($request->all(), [
         'nama' => 'required',
-        'id' => 'required|unique:klasifikasi_akun,id,'.$request->id,
         'id_parent_akun' => 'required',
         ]);
       if ($validator->fails()) {
         return response()->json(['error'=>$validator->errors()], 401);
       }
+
+      // $this->validate($request, [
+      //    'nama' => 'required',
+      //    'id' => 'required|unique:klasifikasi_akun,id,'.$request->id,
+      //    'id_parent_akun' => 'required',
+      //   ]);
 
       $data = KlasifikasiAkun::find($id);
       $data->nama=$request->get('nama');

@@ -30,7 +30,7 @@ class DataAkunController extends Controller
 
     public function detail($id)
     {
-      $data = DataAkun::where('id', $id)->with('klasifikasi_akun.parent_akun')->first();
+      $data = DataAkun::where('id', $id)->first();
       return response()->json([
          'status'=>'success',
          'parent'=> $data

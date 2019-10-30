@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\DataAkun;
+use App\ParentAkun;
+use App\KlasifikasiAkun;
 use App\NeracaAwal;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +20,7 @@ class NeracaAwalController extends Controller
         $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                   ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
                                   ->whereRaw('YEAR(tanggal) = '.$year)
-                                  ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
+                                  ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.nama as nama_akun','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
                                   ->orderBy('data_akun.id')
                                   ->get();
         $total_kredit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
@@ -45,9 +47,135 @@ class NeracaAwalController extends Controller
       
     }
 
+    public function data_akun()
+    {
+      $data = DataAkun::select('data_akun.id', 'data_akun.nama')->orderBy('data_akun.id')->get();
+      return response()->json([
+         'status'=>'success',
+         'akun'=> $data
+       ]);
+    }
+
+
+    public function show_klasifikasi(Request $request)
+    {
+      if($request->has('year') && $request->has('id_klasifikasi')){
+        $year = $request->input('year');
+        $id_klasifikasi = $request->input('id_klasifikasi');
+
+
+        $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                  ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
+                                  ->whereRaw('YEAR(tanggal) = '.$year)
+                                  ->where('klasifikasi_akun.id', $id_klasifikasi)
+                                  ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
+                                  ->orderBy('data_akun.id')
+                                  ->get();
+
+
+        return response()->json([
+           'status'=>'success',
+           'neraca_awal'=>$neraca_awal
+         ]);
+
+      }elseif (empty($neraca_awal[0]->id)) {
+        return response()->json([
+        'result'=>'Data tidak tersedia' ,
+        ]);
+      }
+      
+    }
+
+    public function show_klasifikasi2(Request $request)
+    {
+      if($request->has('id_klasifikasi')){
+        $id_klasifikasi= $request->input('id_klasifikasi');
+
+       
+        $data = DataAkun::where('id_klasifikasi_akun',$id_klasifikasi)->get();
+        return response()->json([
+           'status'=>'success',
+           'data_akun'=> $data,
+         ]);
+
+      }elseif (empty($data[0]->id)) {
+        return response()->json([
+        'result'=>'Data tidak tersedia' ,
+        ]);
+      }
+      
+    }
+
+    public function show_parent(Request $request)
+    {
+      if($request->has('id_parent')){
+        $id_parent= $request->input('id_parent');
+
+       
+        $data = KlasifikasiAkun::where('id_parent_akun',$id_parent)->get();
+        return response()->json([
+           'status'=>'success',
+           'klasifikasi_akun'=> $data,
+         ]);
+
+      }elseif (empty($data[0]->id)) {
+        return response()->json([
+        'result'=>'Data tidak tersedia' ,
+        ]);
+      }
+      
+    }
+
+    public function parent(Request $request){
+
+      $parent = ParentAkun::all();
+
+      if($request->has('year')){
+      $year = $request->input('year');
+      
+
+      $total_kredit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                              ->where('data_akun.posisi_normal','Kredit')
+                                              ->whereRaw('YEAR(tanggal) = '.$year)
+                                              ->sum('jumlah');
+
+      $total_debit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                              ->where('data_akun.posisi_normal','Debit')
+                                              ->whereRaw('YEAR(tanggal) = '.$year)
+                                              ->sum('jumlah');
+      }
+      return response()->json([
+        'status'=>'success',
+        'parent'=> $parent ,
+        'total_debit'=>$total_debit,
+        'total_kredit'=>$total_kredit
+      ]);
+     }
+
+    public function show_akun(Request $request)
+    {
+      if($request->has('id_parent')){
+        $id_parent= $request->input('id_parent');
+
+       
+        $data = KlasifikasiAkun::with('data_akun')->where('id_parent_akun',$id_parent)->get();
+        return response()->json([
+           'status'=>'success',
+           'Akun'=> $data,
+         ]);
+
+      }elseif (empty($data[0]->id)) {
+        return response()->json([
+        'result'=>'Data tidak tersedia' ,
+        ]);
+      }
+      
+    }
+
+
     public function detail($id)
     {
-      $data = NeracaAwal::where('id', $id)->with('data_akun')->first();
+      $data = NeracaAwal::where('id', $id)->first();
       return response()->json([
          'status'=>'success',
          'parent'=> $data
@@ -68,7 +196,8 @@ class NeracaAwalController extends Controller
       $data = NeracaAwal::create([
               'id_data_akun' => request('id_data_akun'),
               'tanggal' => request('tanggal'),
-              'jumlah' => request('jumlah')
+              'jumlah' => request('jumlah'),
+              'tahun' => date('Y', strtotime(request('tanggal')))
               ]);
       $neraca_awal = NeracaAwal::where('neraca_awal.id', $data->id)
                                 ->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
