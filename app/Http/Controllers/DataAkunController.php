@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\DataAkun;
 use App\KlasifikasiAkun;
+use App\NeracaAwal;
+use App\Jurnal;
 use Illuminate\Support\Facades\Validator;
+use Auth;
 
 class DataAkunController extends Controller
 {
@@ -16,11 +19,8 @@ class DataAkunController extends Controller
       }elseif ($request->id_klasifikasi_akun) {
           $data = DataAkun::where('data_akun.id_klasifikasi_akun', $request->id_klasifikasi_akun)->get();
       }else {
-          $data = DataAkun::all();
+          $data = DataAkun::where('created_by', Auth::user()->id)->orWhere('created_by',1)->get();
       }
-      // $data = ParentAkun::all();
-      // $data = ParentAkun::with('klasifikasi_akun.data_akun')->get();
-                    // dd($user);
 
       return response()->json([
          'status'=>'success',
@@ -53,7 +53,8 @@ class DataAkunController extends Controller
               'id' => $request->id,
               'id_klasifikasi_akun' => request('id_klasifikasi_akun'),
               'nama' =>$request->nama,
-              'posisi_normal' => request('posisi_normal')
+              'posisi_normal' => request('posisi_normal'),              
+              'created_by' => Auth::user()->id,
               ]);
       $akun = DataAkun::where('id', $request->id)->get();
       return response()->json([
@@ -88,10 +89,26 @@ class DataAkunController extends Controller
 
     public function destroy($id)
     {
-      $data = DataAkun::find($id)->delete();
-      return response()->json([
-        'success'=>"Data Deleted successfully."
-      ]);
+      $data = DataAkun::where('id',$id)->first();
+        $neracaAwal = NeracaAwal::where('id_data_akun', $data->id)->get()->count();        
+        $jurnal = Jurnal::where('id_data_akun', $data->id)->get()->count();
+         if ($neracaAwal > 0) {
+           return response()->json([
+             'status'=>'failed',
+             'message'=>'Data is being used by another table!'
+           ]);
+         }else if ($jurnal > 0) {
+           return response()->json([
+             'status'=>'failed',
+             'message'=>'Data is being used by another table!'
+           ]);
+         }else {
+           $data->delete();
+           return response()->json([
+             'status'=>'success',
+             'message'=>'Data Deleted successfully.'
+           ]);         
+         }
     }
 
 

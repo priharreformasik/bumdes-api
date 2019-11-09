@@ -33,7 +33,7 @@ class LabaRugiController extends Controller
                                     ->where('data_akun.id','=',$i->id)
                                     ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
                                     ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
-                                    ->select('data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
+                                    ->select('data_akun.id_klasifikasi_akun','data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
                                     ->orderBy('jurnal.tanggal')
                                     ->first()->toArray();
 
@@ -77,6 +77,18 @@ class LabaRugiController extends Controller
 
         }
 
+        $id_total_pendapatan = array_keys(array_column($array, 'id_klasifikasi_akun'), 4);
+        $total_pendapatan = 0;
+        foreach ($id_total_pendapatan as $key => $value) {
+            $total_pendapatan = $total_pendapatan + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_pendapatan = array_keys(array_column($array, 'id_klasifikasi_akun'), 4);
+        $list_pendapatan = [];
+        foreach ($id_total_pendapatan as $key => $value) {
+            $list_pendapatan[] = $array[$value];
+        }
+
         $total_pendapatan = $array[0]['nilai_akun']+$array[1]['nilai_akun']+$array[2]['nilai_akun']+$array[3]['nilai_akun'];
         $total_biaya = $array[4]['nilai_akun']+$array[5]['nilai_akun']+$array[6]['nilai_akun']+$array[7]['nilai_akun']+$array[8]['nilai_akun']+$array[9]['nilai_akun']+$array[10]['nilai_akun']+$array[11]['nilai_akun']+$array[12]['nilai_akun']+$array[13]['nilai_akun'];
         $total_lain = $array[14]['nilai_akun']+$array[15]['nilai_akun'];
@@ -92,6 +104,7 @@ class LabaRugiController extends Controller
             'Total Biaya' => $total_biaya,
             'Laba Usaha' => $laba_usaha,
             'Lain-lain' =>  [$array[14],$array[15]],
+            'Total Lain-lain' => $total_lain,
             'Saldo laba/rugi tahun berjalan' =>$saldo_laba_rugi
          ]);
         }

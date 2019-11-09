@@ -7,6 +7,7 @@ use App\DataAkun;
 use App\Jurnal;
 use App\Kwitansi;
 use DB;
+use Auth;
 use Illuminate\Support\Facades\Validator;
 
 class JurnalController extends Controller
@@ -78,12 +79,14 @@ class JurnalController extends Controller
 
         $data = Kwitansi::create([      
               'no_kwitansi'=>$request->no_kwitansi,
-              'keterangan'=>$request->keterangan,
+              'keterangan'=>$request->keterangan,              
+              'created_by' => Auth::user()->id,
               ])->jurnal()->create([
                 'id_data_akun' => request('id_data_akun'),
                 'tanggal' => request('tanggal'),
                 'jumlah' => request('jumlah'),
                 'posisi_normal' => request('posisi_normal'),
+                'created_by' => Auth::user()->id,
           ]);
       $jurnal = Kwitansi::where('id',$data->id_kwitansi)->with('jurnal.data_akun')->first();
     // dd($jurnal);
@@ -116,7 +119,8 @@ class JurnalController extends Controller
               'id_data_akun' => request('id_data_akun'),
               'tanggal' => request('tanggal'),
               'jumlah' => request('jumlah'),
-              'posisi_normal' => request('posisi_normal')
+              'posisi_normal' => request('posisi_normal'),
+              'created_by' => Auth::user()->id,
           ]);
 
     $jurnal = Kwitansi::where('id',$data->id_kwitansi)->with('jurnal.data_akun')->first();

@@ -5,20 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\KlasifikasiAkun;
 use App\ParentAkun;
+use App\DataAkun;
 use Illuminate\Support\Facades\Validator;
+use Auth;
 
 class KlasifikasiAkunController extends Controller
 {
     public function show(Request $request)
     {
-      // $klasifikasi = ParentAkun::all();
-      // $klasifikasi = ParentAkun::with('klasifikasi_akun')->get();
       if ($request->id) {
           $klasifikasi = KlasifikasiAkun::where('id', $request->id)->get();
       }elseif ($request->id_parent_akun) {
           $klasifikasi = KlasifikasiAkun::where('id_parent_akun', $request->id_parent_akun)->get();
       }else {
-          $klasifikasi = KlasifikasiAkun::all();
+          $klasifikasi = KlasifikasiAkun::where('created_by', Auth::user()->id)->orWhere('created_by',1)->get();
       }
 
                     // dd($user);
@@ -53,6 +53,7 @@ class KlasifikasiAkunController extends Controller
               'id' => $request->id,
               'nama' => $request->nama,
               'id_parent_akun' => request('id_parent_akun'),
+              'created_by' => Auth::user()->id,
               ]);
 
       $klasifikasi = KlasifikasiAkun::where('id', $request->id)->get();
@@ -74,12 +75,6 @@ class KlasifikasiAkunController extends Controller
         return response()->json(['error'=>$validator->errors()], 401);
       }
 
-      // $this->validate($request, [
-      //    'nama' => 'required',
-      //    'id' => 'required|unique:klasifikasi_akun,id,'.$request->id,
-      //    'id_parent_akun' => 'required',
-      //   ]);
-
       $data = KlasifikasiAkun::find($id);
       $data->nama=$request->get('nama');
       $data->id_parent_akun=$request->get('id_parent_akun');
@@ -93,10 +88,20 @@ class KlasifikasiAkunController extends Controller
 
     public function destroy($id)
     {
-      $data = KlasifikasiAkun::find($id)->delete();
-      return response()->json([
-        'success'=>"Data Deleted successfully."
-      ]);
+      $data = KlasifikasiAkun::where('id',$id)->first();
+        $dataAkun = DataAkun::where('id_klasifikasi_akun', $data->id)->get()->count();
+         if ($dataAkun > 0) {
+           return response()->json([
+             'status'=>'failed',
+             'message'=>'Data is being used by another table!'
+           ]);
+         }else {
+           $data->delete();
+           return response()->json([
+             'status'=>'success',
+             'message'=>'Data Deleted successfully.'
+           ]);         
+         }
     }
 
 }

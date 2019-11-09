@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DataAkun extends Model
 {
     protected $table = 'data_akun';
-    protected $fillable = ['id','id_klasifikasi_akun','nama','posisi_normal'];
+    protected $fillable = ['id','id_klasifikasi_akun','nama','posisi_normal','created_by'];
     public $timestamps = true;
 
     public function klasifikasi_akun()
@@ -23,5 +23,10 @@ class DataAkun extends Model
     public function jurnal()
     {
         return $this->hasMany('App\Jurnal', 'id_data_akun', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User', 'created_by', 'id');
     }
 }

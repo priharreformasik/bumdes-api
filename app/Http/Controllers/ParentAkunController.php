@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\ParentAkun;
+use App\KlasifikasiAkun;
 use Illuminate\Support\Facades\Validator;
 
 class ParentAkunController extends Controller
@@ -71,9 +72,19 @@ class ParentAkunController extends Controller
 
     public function destroy($id)
     {
-      $data = ParentAkun::find($id)->delete();
-      return response()->json([
-        'success'=>"Data Deleted successfully."
-      ]);
+      $data = ParentAkun::where('id',$id)->first();
+        $klasifikasiAkun = KlasifikasiAkun::where('id_parent_akun', $data->id)->get()->count();
+         if ($klasifikasiAkun > 0) {
+           return response()->json([
+             'status'=>'failed',
+             'message'=>'Data is being used by another table!'
+           ]);
+         }else {
+           $data->delete();
+           return response()->json([
+             'status'=>'success',
+             'message'=>'Data Deleted successfully.'
+           ]);         
+         }
     }
 }

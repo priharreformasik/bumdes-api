@@ -38,4 +38,31 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function klasifikasi_akun()
+    {
+        return $this->hasMany('App\KlasifikasiAkun', 'created_by', 'id');
+    }
+
+    public function data_akun()
+    {
+        return $this->hasMany('App\DataAkun', 'created_by', 'id');
+    }
+
+    public function neraca_awal()
+    {
+        return $this->hasMany('App\NeracaAwal', 'created_by', 'id');
+    }
+
+    public function jurnal()
+    {
+        return $this->hasMany('App\Jurnal', 'created_by', 'id');
+    }
+
+    public function kwitansi()
+    {
+        return $this->hasMany('App\Kwitansi', 'created_by', 'id');
+    }
+
+
 }

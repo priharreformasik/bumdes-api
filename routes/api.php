@@ -38,13 +38,13 @@ Route::middleware('auth:api')->get('/parent-akun/detail/{id}', 'ParentAkunContro
 Route::middleware('auth:api')->get('/parent-akun/delete/{id}', 'ParentAkunController@destroy');
 /*======== END OF PARENT AKUN ==========*/
 
-/*======== START OF PARENT AKUN ==========*/
+/*======== START OF KLASIFIKASI AKUN ==========*/
 Route::middleware('auth:api')->get('klasifikasi-akun', 'KlasifikasiAkunController@show');
 Route::middleware('auth:api')->post('/klasifikasi-akun/store', 'KlasifikasiAkunController@store');
 Route::middleware('auth:api')->put('/klasifikasi-akun/update/{id}', 'KlasifikasiAkunController@update');
 Route::middleware('auth:api')->get('/klasifikasi-akun/detail/{id}', 'KlasifikasiAkunController@detail');
 Route::middleware('auth:api')->get('/klasifikasi-akun/delete/{id}', 'KlasifikasiAkunController@destroy');
-/*======== END OF PARENT AKUN ==========*/
+/*======== END OF KLASIFIKASI AKUN ==========*/
 
 /*======== START OF DATA AKUN ==========*/
 Route::middleware('auth:api')->get('data-akun', 'DataAkunController@show');
@@ -58,9 +58,7 @@ Route::middleware('auth:api')->get('/data-akun/delete/{id}', 'DataAkunController
 Route::middleware('auth:api')->get('neraca-awal', 'NeracaAwalController@show');
 Route::middleware('auth:api')->get('neraca-awal/data-akun', 'NeracaAwalController@data_akun');
 Route::middleware('auth:api')->get('neraca-awal/show_klasifikasi', 'NeracaAwalController@show_parent');
-Route::middleware('auth:api')->get('neraca-awal/akun', 'NeracaAwalController@show_akun');
 Route::middleware('auth:api')->get('neraca-awal/show_akun', 'NeracaAwalController@show_klasifikasi');
-Route::middleware('auth:api')->get('neraca-awal/klasifikasi_akun', 'NeracaAwalController@show_klasifikasi2');
 Route::middleware('auth:api')->get('neraca-awal/parent', 'NeracaAwalController@parent');
 Route::middleware('auth:api')->post('/neraca-awal/store', 'NeracaAwalController@store');
 Route::middleware('auth:api')->put('/neraca-awal/update/{id}', 'NeracaAwalController@update');

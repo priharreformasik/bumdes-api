@@ -23,7 +23,7 @@ class UserController extends Controller
             'email' => request('email'),
             'password' => request('password')
         ])){
-            $user = Auth::user()->first();
+            $user = Auth::user();
             $success['id'] = $user->id;
             $success['nama'] = $user->nama;
             $success['no_telepon'] = $user->no_telepon;

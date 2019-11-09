@@ -10,6 +10,7 @@ use App\NeracaAwal;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use DB;
+use Auth;
 
 class NeracaAwalController extends Controller
 {
@@ -20,16 +21,19 @@ class NeracaAwalController extends Controller
         $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                   ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
                                   ->whereRaw('YEAR(tanggal) = '.$year)
+                                  ->where('created_by', Auth::user()->id)
                                   ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.nama as nama_akun','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
                                   ->orderBy('data_akun.id')
                                   ->get();
         $total_kredit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                               ->where('data_akun.posisi_normal','Kredit')
+                                              ->where('created_by', Auth::user()->id)
                                               ->whereRaw('YEAR(tanggal) = '.$year)
                                               ->sum('jumlah');
 
         $total_debit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                               ->where('data_akun.posisi_normal','Debit')
+                                              ->where('created_by', Auth::user()->id)
                                               ->whereRaw('YEAR(tanggal) = '.$year)
                                               ->sum('jumlah');
         return response()->json([
@@ -49,7 +53,7 @@ class NeracaAwalController extends Controller
 
     public function data_akun()
     {
-      $data = DataAkun::select('data_akun.id', 'data_akun.nama')->orderBy('data_akun.id')->get();
+      $data = DataAkun::where('created_by', Auth::user()->id)->orWhere('created_by',1)->select('data_akun.id', 'data_akun.nama')->orderBy('data_akun.id')->get();
       return response()->json([
          'status'=>'success',
          'akun'=> $data
@@ -66,9 +70,10 @@ class NeracaAwalController extends Controller
 
         $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                   ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
+                                  ->where('neraca_awal.created_by', Auth::user()->id)
                                   ->whereRaw('YEAR(tanggal) = '.$year)
                                   ->where('klasifikasi_akun.id', $id_klasifikasi)
-                                  ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
+                                  ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','data_akun.nama as nama_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
                                   ->orderBy('data_akun.id')
                                   ->get();
 
@@ -86,46 +91,6 @@ class NeracaAwalController extends Controller
       
     }
 
-    public function show_klasifikasi2(Request $request)
-    {
-      if($request->has('id_klasifikasi')){
-        $id_klasifikasi= $request->input('id_klasifikasi');
-
-       
-        $data = DataAkun::where('id_klasifikasi_akun',$id_klasifikasi)->get();
-        return response()->json([
-           'status'=>'success',
-           'data_akun'=> $data,
-         ]);
-
-      }elseif (empty($data[0]->id)) {
-        return response()->json([
-        'result'=>'Data tidak tersedia' ,
-        ]);
-      }
-      
-    }
-
-    public function show_parent(Request $request)
-    {
-      if($request->has('id_parent')){
-        $id_parent= $request->input('id_parent');
-
-       
-        $data = KlasifikasiAkun::where('id_parent_akun',$id_parent)->get();
-        return response()->json([
-           'status'=>'success',
-           'klasifikasi_akun'=> $data,
-         ]);
-
-      }elseif (empty($data[0]->id)) {
-        return response()->json([
-        'result'=>'Data tidak tersedia' ,
-        ]);
-      }
-      
-    }
-
     public function parent(Request $request){
 
       $parent = ParentAkun::all();
@@ -136,11 +101,13 @@ class NeracaAwalController extends Controller
 
       $total_kredit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                               ->where('data_akun.posisi_normal','Kredit')
+                                              ->where('neraca_awal.created_by', Auth::user()->id)
                                               ->whereRaw('YEAR(tanggal) = '.$year)
                                               ->sum('jumlah');
 
       $total_debit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                               ->where('data_akun.posisi_normal','Debit')
+                                              ->where('neraca_awal.created_by', Auth::user()->id)
                                               ->whereRaw('YEAR(tanggal) = '.$year)
                                               ->sum('jumlah');
       }
@@ -152,27 +119,6 @@ class NeracaAwalController extends Controller
       ]);
      }
 
-    public function show_akun(Request $request)
-    {
-      if($request->has('id_parent')){
-        $id_parent= $request->input('id_parent');
-
-       
-        $data = KlasifikasiAkun::with('data_akun')->where('id_parent_akun',$id_parent)->get();
-        return response()->json([
-           'status'=>'success',
-           'Akun'=> $data,
-         ]);
-
-      }elseif (empty($data[0]->id)) {
-        return response()->json([
-        'result'=>'Data tidak tersedia' ,
-        ]);
-      }
-      
-    }
-
-
     public function detail($id)
     {
       $data = NeracaAwal::where('id', $id)->first();
@@ -183,11 +129,16 @@ class NeracaAwalController extends Controller
     }
 
     public function store(Request $request){
-
+      $data = NeracaAwal::where('id_data_akun',$request->id_data_akun)->latest()->first();
+      if ($data == NULL) {
+        $date = '0000-00-00';
+      } else {
+        $date = date('Y-m-d', strtotime($data->tanggal . " +1 year") );
+      }
       $validator = Validator::make($request->all(), [
-        'tanggal' => 'required|after_or_equal:'.date('Y-m-d',strtotime('+1 year', strtotime(request('tanggal')))),
+        'tanggal' => 'required|after_or_equal:'.$date,
         'id_data_akun' => 'required',
-        'jumlah' => 'required'
+        'jumlah' => 'required',
         ]);
       if ($validator->fails()) {
         return response()->json(['error'=>$validator->errors()], 401);
@@ -197,18 +148,18 @@ class NeracaAwalController extends Controller
               'id_data_akun' => request('id_data_akun'),
               'tanggal' => request('tanggal'),
               'jumlah' => request('jumlah'),
-              // 'tahun' => date('Y', strtotime(request('tanggal')))
+              'created_by' => Auth::user()->id,
               ]);
       $neraca_awal = NeracaAwal::where('neraca_awal.id', $data->id)
                                 ->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                 ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
-
+                                ->where('neraca_awal.created_by', Auth::user()->id)
                                 ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
                                 ->first();
 
       return response()->json([
         'status'=>'success',
-        'result'=>date('Y-m-d',strtotime('+1 year', strtotime(request('tanggal'))))
+        'result'=>$neraca_awal
       ]); 
     }
 
@@ -249,68 +200,5 @@ class NeracaAwalController extends Controller
       ]);
     }
 
-    // public function report_all(Request $request){
-
-    //     if($request->from > $request->until){
-    //         Alert::error('Oops', 'Input tanggal salah!');
-    //         return back()->withInput();
-    //     }else{
-    //             $list = Jadwal::leftjoin('layanan','jadwal.layanan_id','=','layanan.id')
-    //                             ->leftjoin('status','jadwal.status_id','=','status.id')
-    //                             ->leftjoin('ruangan','jadwal.ruangan_id','=','ruangan.id')
-    //                             ->leftjoin('sesi','jadwal.sesi_id','=','sesi.id')
-    //                             ->leftjoin('klien','jadwal.klien_id','=','klien.id')
-    //                             ->leftjoin('psikolog','jadwal.psikolog_id','=','psikolog.id')
-    //                             ->where('status.nama','=','Selesai')
-    //                             ->where('jadwal.tanggal','>=', $request->from = Carbon::parse($request->from))
-    //                             ->where('jadwal.tanggal','<=', $request->until = Carbon::parse($request->until))
-    //                             ->select('jadwal.*')  
-    //                             ->with(['psikolog', 'klien','layanan',  'status', 'ruangan', 'sesi'])
-    //                             ->orderBy('layanan.nama')
-    //                             ->orderBy('tanggal','asc')
-    //                             ->get();
-    //                             // dd($list);
-    //             if (empty($list[0]->id)) {
-    //                 Alert::error('Oops', 'Data tidak tersedia!');
-    //                 return back()->withInput();                 
-    //             } 
-
-    //             $data = DB::table('jadwal')
-    //                 ->leftjoin('layanan','jadwal.layanan_id','=','layanan.id')
-    //                 ->leftjoin('status','jadwal.status_id','=','status.id')
-    //                 ->where('jadwal.tanggal','>=', $request->from = Carbon::parse($request->from))
-    //                 ->where('jadwal.tanggal','<=', $request->until = Carbon::parse($request->until))
-    //                 ->select([
-    //                     DB::raw('count(layanan_id) as count'),
-    //                     DB::raw('layanan.nama as tagh'),
-    //                     ])
-    //                 ->where('status.nama','=','Selesai')
-    //                 ->groupBy('jadwal.layanan_id','layanan.nama')
-    //                 ->orderBy('count','desc')
-    //                 // ->offset(0)
-    //                 ->limit(30)
-    //                 ->get();
-    //                 // dd($data);
-
-    //             $collection=[];
-    //             $collection2 =[];
-
-    //             foreach ($data as $key => $value) {
-    //                 $collection[$key] = $value->count;
-    //             }
-    //             foreach ($data as $key => $value) {
-    //                 $collection2[$key] = $value->tagh;
-    //             }
-
-    //             $chart = new ECharts;
-    //             $chart->labels($collection2);
-    //             $chart->dataset('Layanan', 'bar', $collection);
-    //             $chart->theme('light');
-    //             // $chart->displayAxes(false);
-
-    //             return view('statistik.report_all_layanan',compact('chart','request','layanan','list'));
-    //     }
-
-    // }
 
 }
