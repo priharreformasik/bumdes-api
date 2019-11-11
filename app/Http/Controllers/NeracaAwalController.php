@@ -129,7 +129,8 @@ class NeracaAwalController extends Controller
     }
 
     public function store(Request $request){
-      $data = NeracaAwal::where('id_data_akun',$request->id_data_akun)->latest()->first();
+      $data = NeracaAwal::where('id_data_akun',$request->id_data_akun)
+                          ->where('created_by',Auth::user()->id)->latest()->first();
       if ($data == NULL) {
         $date = '0000-00-00';
       } else {

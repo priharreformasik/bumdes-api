@@ -8,6 +8,7 @@ use App\Jurnal;
 use App\Kwitansi;
 use App\NeracaAwal;
 use DB;
+use Auth;
 
 
 class BukuBesarController extends Controller
@@ -20,6 +21,7 @@ class BukuBesarController extends Controller
         $akun = $request->input('id_data_akun');
 
         $saldo_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
+                                ->where('neraca_awal.created_by', Auth::user()->id)
                                 ->whereRaw('neraca_awal.id_data_akun = '.$akun)
                                 ->whereRaw('YEAR(tanggal) = '.$year)
                                 ->select('neraca_awal.jumlah')
@@ -27,7 +29,8 @@ class BukuBesarController extends Controller
 
         $buku_besar = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                 ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                                ->leftjoin('neraca_awal','neraca_awal.id_data_akun','=','jurnal.id_data_akun')
+                                ->leftjoin('neraca_awal','neraca_awal.id_data_akun','=','jurnal.id_data_akun')                 
+                                ->where('jurnal.created_by', Auth::user()->id)
                                 ->whereRaw('jurnal.id_data_akun = '.$akun)
                                 ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
                                 ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
@@ -42,7 +45,8 @@ class BukuBesarController extends Controller
         
         $saldo_akhir = 0;
         if ($buku_besar->isEmpty()) {
-            $buku_besar = ['Saldo Awal' => (int) NeracaAwal::where('id_data_akun',$akun)->first()->jumlah];
+            $buku_besar = ['Saldo Awal' => (int) NeracaAwal::where('id_data_akun',$akun)->where('created_by', Auth::id())
+                                                            ->first()->jumlah];
         } else {
             foreach ($buku_besar as $key => $value) {
                 if ($key == 0) {
@@ -54,11 +58,12 @@ class BukuBesarController extends Controller
             }
         }
         $total_kredit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
-                                         ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
+                                            ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
                                             ->where('jurnal.posisi_normal','k')
                                             ->whereRaw('jurnal.id_data_akun = '.$akun)
                                             ->whereRaw('MONTH(tanggal) = '.$month)
                                             ->whereRaw('YEAR(tanggal) = '.$year)
+                                            ->where('jurnal.created_by', Auth::id())
                                             ->sum('jumlah');
 
         $total_debit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
@@ -67,6 +72,7 @@ class BukuBesarController extends Controller
                                             ->whereRaw('jurnal.id_data_akun = '.$akun)
                                             ->whereRaw('MONTH(tanggal) = '.$month)
                                             ->whereRaw('YEAR(tanggal) = '.$year)
+                                            ->where('jurnal.created_by', Auth::id())
                                             ->sum('jumlah');
 
         return response()->json([

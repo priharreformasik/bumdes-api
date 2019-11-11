@@ -32,7 +32,7 @@ class NeracaController extends Controller
                                     ->where('data_akun.id','=',$i->id)
                                     ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
                                     ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
-                                    ->select('data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
+                                    ->select('data_akun.id_klasifikasi_akun','data_akun.nama','data_akun.id as no_akun',DB::raw('sum(jurnal.jumlah) AS nilai_akun'))
                                     ->orderBy('jurnal.tanggal')
                                     ->first()->toArray();
 
@@ -76,18 +76,105 @@ class NeracaController extends Controller
 
         }
 
-        $total_pendapatan = $array[15]['nilai_akun']+$array[16]['nilai_akun']+$array[17]['nilai_akun']+$array[18]['nilai_akun'];
-        $total_biaya = $array[19]['nilai_akun']+$array[20]['nilai_akun']+$array[21]['nilai_akun']+$array[22]['nilai_akun']+$array[23]['nilai_akun']+$array[24]['nilai_akun']+$array[25]['nilai_akun']+$array[26]['nilai_akun']+$array[27]['nilai_akun']+$array[28]['nilai_akun'];
-        $total_lain = $array[29]['nilai_akun']+$array[30]['nilai_akun'];
+        $id_total_pendapatan = array_keys(array_column($array, 'id_klasifikasi_akun'), 4);
+        $total_pendapatan = 0;
+        foreach ($id_total_pendapatan as $key => $value) {
+            $total_pendapatan = $total_pendapatan + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_pendapatan = array_keys(array_column($array, 'id_klasifikasi_akun'), 4);
+        $list_pendapatan = [];
+        foreach ($id_total_pendapatan as $key => $value) {
+            $list_pendapatan[] = $array[$value];
+        }
+
+        $id_total_biaya = array_keys(array_column($array, 'id_klasifikasi_akun'), 5);
+        $total_biaya = 0;
+        foreach ($id_total_biaya as $key => $value) {
+            $total_biaya = $total_biaya + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_biaya = array_keys(array_column($array, 'id_klasifikasi_akun'), 5);
+        $list_biaya = [];
+        foreach ($id_total_biaya as $key => $value) {
+            $list_biaya[] = $array[$value];
+        }
+
+        $id_total_pendapatan_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 6);
+        $total_pendapatan_lain = 0;
+        foreach ($id_total_pendapatan_lain as $key => $value) {
+            $total_pendapatan_lain = $total_pendapatan_lain + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_pendapatan_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 6);
+        $list_pendapatan_lain = [];
+        foreach ($id_total_pendapatan_lain as $key => $value) {
+            $list_pendapatan_lain[] = $array[$value];
+        }
+
+        $id_total_biaya_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 7);
+        $total_biaya_lain = 0;
+        foreach ($id_total_biaya_lain as $key => $value) {
+            $total_biaya_lain = $total_biaya_lain + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_biaya_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 7);
+        $list_biaya_lain = [];
+        foreach ($id_total_biaya_lain as $key => $value) {
+            $list_biaya_lain[] = $array[$value];
+        }
+
+        $total_lain = $total_pendapatan_lain - $total_biaya_lain;
         $laba_usaha = $total_pendapatan - $total_biaya;
-        $saldo_laba_rugi = $laba_usaha + $total_lain;   
+        $saldo_laba_rugi = $laba_usaha + $total_lain;
 
-        $total_aset_lancar = $array[0]['nilai_akun']+$array[1]['nilai_akun']+$array[2]['nilai_akun']+$array[3]['nilai_akun'];
+        $id_aset_lancar = array_keys(array_column($array, 'id_klasifikasi_akun'), 11);
+        $total_aset_lancar = 0;
+        foreach ($id_aset_lancar as $key => $value) {
+            $total_aset_lancar = $total_aset_lancar + $array[$value]['nilai_akun'];
+        }
 
-        $total_aset_tetap = $array[4]['nilai_akun']+$array[5]['nilai_akun']+$array[31]['nilai_akun']+$array[6]['nilai_akun']+$array[32]['nilai_akun']+$array[7]['nilai_akun']+$array[33]['nilai_akun'];
+        $id_total_aset_lancar = array_keys(array_column($array, 'id_klasifikasi_akun'), 11);
+        $list_aset_lancar = [];
+        foreach ($id_total_aset_lancar as $key => $value) {
+            $list_aset_lancar[] = $array[$value];
+        }
 
-        $total_liabilitas_lancar = $array[8]['nilai_akun']+$array[9]['nilai_akun']+$array[10]['nilai_akun'];
-        $total_liabilitas_jangka_panjang  = $array[11]['nilai_akun'];
+        $id_aset_tetap = array_keys(array_column($array, 'id_klasifikasi_akun'), 12);
+        $total_aset_tetap = 0;
+        foreach ($id_aset_tetap as $key => $value) {
+            $total_aset_tetap = $total_aset_tetap + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_aset_tetap = array_keys(array_column($array, 'id_klasifikasi_akun'), 12);
+        $list_aset_tetap = [];
+        foreach ($id_total_aset_tetap as $key => $value) {
+            $list_aset_tetap[] = $array[$value];
+        }
+
+        $id_liabilitas_lancar = array_keys(array_column($array, 'id_klasifikasi_akun'), 21);
+        $total_liabilitas_lancar = 0;
+        foreach ($id_liabilitas_lancar as $key => $value) {
+            $total_liabilitas_lancar = $total_liabilitas_lancar + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_liabilitas_lancar = array_keys(array_column($array, 'id_klasifikasi_akun'), 21);
+        $list_liabilitas_lancar = [];
+        foreach ($id_total_liabilitas_lancar as $key => $value) {
+            $list_liabilitas_lancar[] = $array[$value];
+        }
+
+        $id_liabilitas_jangka_panjang = array_keys(array_column($array, 'id_klasifikasi_akun'), 22);
+        $total_liabilitas_jangka_panjang = 0;
+        foreach ($id_liabilitas_jangka_panjang as $key => $value) {
+            $total_liabilitas_jangka_panjang = $total_liabilitas_jangka_panjang + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_liabilitas_jangka_panjang = array_keys(array_column($array, 'id_klasifikasi_akun'), 22);
+        $list_liabilitas_jangka_panjang = [];
+        foreach ($id_total_liabilitas_jangka_panjang as $key => $value) {
+            $list_liabilitas_jangka_panjang[] = $array[$value];
+        }
 
         $total_ekuitas=$array[12]['nilai_akun']+$array[13]['nilai_akun']+$saldo_laba_rugi;
 
@@ -97,14 +184,14 @@ class NeracaController extends Controller
 
         return response()->json([
             'status'=>'success',       
-            'Aset Lancar'=> [$array[0], $array[1],$array[2], $array[3]],
+            'Aset Lancar'=> $list_aset_lancar,
             'Total Aset Lancar' =>$total_aset_lancar,
-            'Aset Tetap' => [$array[4], $array[5],$array[31], $array[6],$array[32], $array[7],$array[33]],
+            'Aset Tetap' => $list_aset_tetap,
             'Total Aset Tetap' =>$total_aset_tetap,
-            'Liabilitas Lancar' => [$array[8], $array[9], $array[10]],
+            'Liabilitas Lancar' => $list_liabilitas_lancar,
             'Total Liabilitas Lancar' =>$total_liabilitas_lancar,
-            'Liabilitas Jangka Panjang' => $array[11],
-            'Total Liabilitas Jangka Panjang' => $array[11],
+            'Liabilitas Jangka Panjang' => $list_liabilitas_jangka_panjang,
+            'Total Liabilitas Jangka Panjang' => $total_liabilitas_jangka_panjang,
             'EKUITAS' =>['Modal disetor'=>$array[12],'Saldo laba ditahan'=>$array[13], 'Saldo laba tahun berjalan'=> $saldo_laba_rugi],
             'Total Aset'=>$total_aset,
             'Total Liabilitas'=>$total_liabilitas,

@@ -89,21 +89,56 @@ class LabaRugiController extends Controller
             $list_pendapatan[] = $array[$value];
         }
 
-        $total_pendapatan = $array[0]['nilai_akun']+$array[1]['nilai_akun']+$array[2]['nilai_akun']+$array[3]['nilai_akun'];
-        $total_biaya = $array[4]['nilai_akun']+$array[5]['nilai_akun']+$array[6]['nilai_akun']+$array[7]['nilai_akun']+$array[8]['nilai_akun']+$array[9]['nilai_akun']+$array[10]['nilai_akun']+$array[11]['nilai_akun']+$array[12]['nilai_akun']+$array[13]['nilai_akun'];
-        $total_lain = $array[14]['nilai_akun']+$array[15]['nilai_akun'];
+        $id_total_biaya = array_keys(array_column($array, 'id_klasifikasi_akun'), 5);
+        $total_biaya = 0;
+        foreach ($id_total_biaya as $key => $value) {
+            $total_biaya = $total_biaya + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_biaya = array_keys(array_column($array, 'id_klasifikasi_akun'), 5);
+        $list_biaya = [];
+        foreach ($id_total_biaya as $key => $value) {
+            $list_biaya[] = $array[$value];
+        }
+
+        $id_total_pendapatan_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 6);
+        $total_pendapatan_lain = 0;
+        foreach ($id_total_pendapatan_lain as $key => $value) {
+            $total_pendapatan_lain = $total_pendapatan_lain + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_pendapatan_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 6);
+        $list_pendapatan_lain = [];
+        foreach ($id_total_pendapatan_lain as $key => $value) {
+            $list_pendapatan_lain[] = $array[$value];
+        }
+
+        $id_total_biaya_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 7);
+        $total_biaya_lain = 0;
+        foreach ($id_total_biaya_lain as $key => $value) {
+            $total_biaya_lain = $total_biaya_lain + $array[$value]['nilai_akun'];
+        }
+
+        $id_total_biaya_lain = array_keys(array_column($array, 'id_klasifikasi_akun'), 7);
+        $list_biaya_lain = [];
+        foreach ($id_total_biaya_lain as $key => $value) {
+            $list_biaya_lain[] = $array[$value];
+        }
+
+        $total_lain = $total_pendapatan_lain - $total_biaya_lain;
         $laba_usaha = $total_pendapatan - $total_biaya;
         $saldo_laba_rugi = $laba_usaha + $total_lain;
         
 
         return response()->json([
             'status'=>'success',
-            'Pendapatan' =>[$array[0],$array[1],$array[2],$array[3]],
-            'Total Pendapatan'=>$total_pendapatan,
-            'Biaya' =>[$array[4],$array[5],$array[6],$array[7],$array[8],$array[9],$array[10],$array[11],$array[12],$array[13]],
+            'Pendapatan' => $list_pendapatan,
+            'Total Pendapatan'=> $total_pendapatan,
+            'Biaya' => $list_biaya,
             'Total Biaya' => $total_biaya,
             'Laba Usaha' => $laba_usaha,
-            'Lain-lain' =>  [$array[14],$array[15]],
+            'Pendapatan Lain-lain' => $list_pendapatan_lain,
+            'Biaya Lain-lain'=>$list_biaya_lain,
             'Total Lain-lain' => $total_lain,
             'Saldo laba/rugi tahun berjalan' =>$saldo_laba_rugi
          ]);
