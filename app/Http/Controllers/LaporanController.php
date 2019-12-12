@@ -22,6 +22,7 @@ class LaporanController extends Controller
         $saldo_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                 ->whereRaw('neraca_awal.id_data_akun = '.$akun)
                                 ->whereRaw('YEAR(tanggal) = '.$year)
+                                ->where('created_by', Auth::user()->id)
                                 ->select('neraca_awal.jumlah')
                                 ->first();
 

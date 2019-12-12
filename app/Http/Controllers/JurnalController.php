@@ -14,29 +14,44 @@ class JurnalController extends Controller
 {
     public function show(Request $request)
     {
-      if($request->has('month') && $request->has('year')){
+      if($request->has('tanggal')|| $request->has('month') || $request->has('year')){
         $month = $request->input('month');
         $year = $request->input('year');
+        $tanggal = $request->input('tanggal');
+        $id = Auth::user()->id;
         $jurnal = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         						    ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                        ->whereRaw('MONTH(tanggal) = '.$month)
-                        ->whereRaw('YEAR(tanggal) = '.$year)
+                        ->where(function($query) use($tanggal,$month,$year,$id) {
+                            $query->where('jurnal.created_by', $id);
+                            $query->whereRaw('MONTH(tanggal) = '.$month);
+                            $query->whereRaw('YEAR(tanggal) = '.$year);
+                            $query->where('jurnal.tanggal','like','%'.$tanggal.'%');
+                        })
                         ->select('jurnal.tanggal','kwitansi.no_kwitansi','kwitansi.keterangan','data_akun.id','data_akun.nama','jurnal.posisi_normal','jurnal.jumlah')
                         ->orderBy('jurnal.tanggal')
                         ->orderBy('data_akun.id')
                         ->get();
+
         $total_kredit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                          ->where('jurnal.posisi_normal','k')
-                          ->whereRaw('MONTH(tanggal) = '.$month)
-                          ->whereRaw('YEAR(tanggal) = '.$year)
+                          ->where(function($query) use($tanggal,$month,$year,$id) {
+                            $query->where('jurnal.posisi_normal','k');
+                            $query->where('jurnal.created_by', $id);
+                            $query->whereRaw('MONTH(tanggal) = '.$month);
+                            $query->whereRaw('YEAR(tanggal) = '.$year);
+                            $query->where('jurnal.tanggal','like','%'.$tanggal.'%');
+                          })
                           ->sum('jumlah');
 
         $total_debit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
-                          ->where('jurnal.posisi_normal','d')
-                          ->whereRaw('MONTH(tanggal) = '.$month)
-                          ->whereRaw('YEAR(tanggal) = '.$year)
+                          ->where(function($query) use($tanggal,$month,$year,$id) {
+                            $query->where('jurnal.posisi_normal','d');
+                            $query->where('jurnal.created_by', $id);
+                            $query->whereRaw('MONTH(tanggal) = '.$month);
+                            $query->whereRaw('YEAR(tanggal) = '.$year);
+                            $query->where('jurnal.tanggal','like','%'.$tanggal.'%');
+                          })
                           ->sum('jumlah');
         return response()->json([
            'status'=>'success',
