@@ -92,7 +92,13 @@ class DataAkunController extends Controller
       $data = DataAkun::where('id',$id)->first();
         $neracaAwal = NeracaAwal::where('id_data_akun', $data->id)->get()->count();        
         $jurnal = Jurnal::where('id_data_akun', $data->id)->get()->count();
-         if ($neracaAwal > 0) {
+        if ($data->created_by == 9) {
+          return response()->json([
+             'status'=>'failed',
+             'message'=>'Data cannot deleted cause created by admin!'
+           ]);
+        } else  {
+          if ($neracaAwal > 0) {
            return response()->json([
              'status'=>'failed',
              'message'=>'Data is being used by another table!'
@@ -109,6 +115,7 @@ class DataAkunController extends Controller
              'message'=>'Data Deleted successfully.'
            ]);         
          }
+       }
     }
 
 
