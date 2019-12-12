@@ -88,8 +88,14 @@ class KlasifikasiAkunController extends Controller
 
     public function destroy($id)
     {
-      $data = KlasifikasiAkun::where('id',$id)->first();
+        $data = KlasifikasiAkun::where('id',$id)->first();
         $dataAkun = DataAkun::where('id_klasifikasi_akun', $data->id)->get()->count();
+        if ($data->created_by == 9) {
+          return response()->json([
+             'status'=>'failed',
+             'message'=>'Data cannot deleted cause created by admin!'
+           ]);
+        } else  {
          if ($dataAkun > 0) {
            return response()->json([
              'status'=>'failed',
@@ -102,6 +108,7 @@ class KlasifikasiAkunController extends Controller
              'message'=>'Data Deleted successfully.'
            ]);         
          }
+        }
     }
 
 }

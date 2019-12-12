@@ -74,6 +74,12 @@ class ParentAkunController extends Controller
     {
       $data = ParentAkun::where('id',$id)->first();
         $klasifikasiAkun = KlasifikasiAkun::where('id_parent_akun', $data->id)->get()->count();
+        if ($data->created_by == 9) {
+          return response()->json([
+             'status'=>'failed',
+             'message'=>'Data cannot deleted cause created by admin!'
+           ]);
+        } else  {
          if ($klasifikasiAkun > 0) {
            return response()->json([
              'status'=>'failed',
@@ -86,5 +92,6 @@ class ParentAkunController extends Controller
              'message'=>'Data Deleted successfully.'
            ]);         
          }
+        }
     }
 }
