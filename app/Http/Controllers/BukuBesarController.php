@@ -57,7 +57,7 @@ class BukuBesarController extends Controller
                 $buku_besar[$key]['Saldo'] = $saldo_akhir;
             }
         }
-        $total_kredit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+        $total_kredit = (int) Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                             ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
                                             ->where('jurnal.posisi_normal','k')
                                             ->whereRaw('jurnal.id_data_akun = '.$akun)
@@ -66,7 +66,7 @@ class BukuBesarController extends Controller
                                             ->where('jurnal.created_by', Auth::id())
                                             ->sum('jumlah');
 
-        $total_debit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+        $total_debit = (int) Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                          ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
                                             ->where('jurnal.posisi_normal','d')
                                             ->whereRaw('jurnal.id_data_akun = '.$akun)

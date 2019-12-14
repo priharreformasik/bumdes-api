@@ -32,7 +32,7 @@ class JurnalController extends Controller
                         ->orderBy('data_akun.id')
                         ->get();
 
-        $total_kredit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+        $total_kredit = (int) Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
                           ->where(function($query) use($tanggal,$month,$year,$id) {
                             $query->where('jurnal.posisi_normal','k');
@@ -43,7 +43,7 @@ class JurnalController extends Controller
                           })
                           ->sum('jumlah');
 
-        $total_debit = DB::table("jurnal")->leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
+        $total_debit = (int) Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
         									->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
                           ->where(function($query) use($tanggal,$month,$year,$id) {
                             $query->where('jurnal.posisi_normal','d');
