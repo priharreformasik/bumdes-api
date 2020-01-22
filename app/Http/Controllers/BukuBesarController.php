@@ -45,7 +45,7 @@ class BukuBesarController extends Controller
         
         $saldo_akhir = 0;
         if ($buku_besar->isEmpty()) {
-            $buku_besar = ['Saldo Awal' => (int) NeracaAwal::where('id_data_akun',$akun)->where('created_by', Auth::id())
+            $buku_besar[] = ['Saldo Awal' => (int) NeracaAwal::where('id_data_akun',$akun)->where('created_by', Auth::id())
                                                             ->first()->jumlah];
         } else {
             foreach ($buku_besar as $key => $value) {
@@ -77,7 +77,7 @@ class BukuBesarController extends Controller
 
         return response()->json([
            'status'=>'success',
-           'saldo_awal'=>$saldo_awal,         
+           'saldo_awal'=> $saldo_awal,         
            'buku_besar'=> $buku_besar,
            'total_kredit' => $total_kredit,
            'total_debit' =>$total_debit
