@@ -21,19 +21,19 @@ class NeracaAwalController extends Controller
         $neraca_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                   ->leftjoin('klasifikasi_akun','klasifikasi_akun.id','=','data_akun.id_klasifikasi_akun')
                                   ->whereRaw('YEAR(tanggal) = '.$year)
-                                  ->where('created_by', Auth::user()->id)
+                                  ->where('neraca_awal.created_by', Auth::user()->id)
                                   ->select('klasifikasi_akun.id as kode_klasifikasi','data_akun.nama as nama_akun','data_akun.id as kode_akun','neraca_awal.tanggal','neraca_awal.jumlah','neraca_awal.id as id_neraca_awal')
                                   ->orderBy('data_akun.id')
                                   ->get();
         $total_kredit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                               ->where('data_akun.posisi_normal','Kredit')
-                                              ->where('created_by', Auth::user()->id)
+                                              ->where('neraca_awal.created_by', Auth::user()->id)
                                               ->whereRaw('YEAR(tanggal) = '.$year)
                                               ->sum('jumlah');
 
         $total_debit = DB::table("neraca_awal")->leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
                                               ->where('data_akun.posisi_normal','Debit')
-                                              ->where('created_by', Auth::user()->id)
+                                              ->where('neraca_awal.created_by', Auth::user()->id)
                                               ->whereRaw('YEAR(tanggal) = '.$year)
                                               ->sum('jumlah');
         return response()->json([
