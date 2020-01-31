@@ -59,6 +59,7 @@ Route::middleware('auth:api')->get('neraca-awal', 'NeracaAwalController@show');
 Route::middleware('auth:api')->get('neraca-awal/data-akun', 'NeracaAwalController@data_akun');
 Route::middleware('auth:api')->get('neraca-awal/show_klasifikasi', 'NeracaAwalController@show_parent');
 Route::middleware('auth:api')->get('neraca-awal/show_akun', 'NeracaAwalController@show_klasifikasi');
+Route::middleware('auth:api')->get('neraca-awal/klasifikasi_akun', 'NeracaAwalController@klasifikasi');
 Route::middleware('auth:api')->get('neraca-awal/parent', 'NeracaAwalController@parent');
 Route::middleware('auth:api')->post('/neraca-awal/store', 'NeracaAwalController@store');
 Route::middleware('auth:api')->put('/neraca-awal/update/{id}', 'NeracaAwalController@update');

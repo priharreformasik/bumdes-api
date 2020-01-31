@@ -119,6 +119,24 @@ class NeracaAwalController extends Controller
       ]);
      }
 
+
+     public function klasifikasi(Request $request)
+     {
+       if ($request->has('id_parent_akun')) {
+         
+          $id_parent_akun = $request->input('id_parent_akun');
+
+          $klasifikasi = KlasifikasiAkun::where('id_parent_akun', $id_parent_akun)
+                              // ->where('created_by', Auth::user()->id)->orWhere('created_by',1)
+                              ->select('klasifikasi_akun.id_parent_akun as kode_parent','klasifikasi_akun.id as kode_klasifikasi','klasifikasi_akun.nama as klasifikasi_akun')
+                              ->get();
+      }
+       return response()->json([
+          'status'=>'success',
+          'klasifikasi_akun'=> $klasifikasi ,
+        ]);
+     }
+
     public function detail($id)
     {
       $data = NeracaAwal::where('id', $id)->first();

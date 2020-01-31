@@ -19,13 +19,9 @@ class BukuBesarController extends Controller
         $month = $request->input('month');
         $year = $request->input('year');
         $akun = $request->input('id_data_akun');
-
-        $saldo_awal = NeracaAwal::leftjoin('data_akun','data_akun.id','=','neraca_awal.id_data_akun')
-                                ->where('neraca_awal.created_by', Auth::user()->id)
-                                ->whereRaw('neraca_awal.id_data_akun = '.$akun)
-                                ->whereRaw('YEAR(tanggal) = '.$year)
-                                ->select('neraca_awal.jumlah')
-                                ->first();
+        
+        $saldo_awal = NeracaAwal::where('id_data_akun',$akun)->whereRaw('YEAR(neraca_awal.tanggal) = '.$year)->where('created_by', Auth::id())->select('neraca_awal.jumlah')
+        ->first();
 
         $buku_besar = Jurnal::leftjoin('data_akun','data_akun.id','=','jurnal.id_data_akun')
                                 ->leftjoin('kwitansi','kwitansi.id','=','jurnal.id_kwitansi')
@@ -34,6 +30,7 @@ class BukuBesarController extends Controller
                                 ->whereRaw('jurnal.id_data_akun = '.$akun)
                                 ->whereRaw('MONTH(jurnal.tanggal) = '.$month)
                                 ->whereRaw('YEAR(jurnal.tanggal) = '.$year)
+                                ->whereRaw('YEAR(neraca_awal.tanggal) = '.$year)
                                 ->select('jurnal.id','jurnal.tanggal','kwitansi.keterangan',
                                     DB::raw('@s:=if(neraca_awal.id_data_akun ='.$akun.', neraca_awal.jumlah,0) as Saldo_Awal'),
                                     DB::raw('@d:=if(jurnal.posisi_normal="d",jurnal.jumlah,0) as Debit'),
@@ -45,8 +42,8 @@ class BukuBesarController extends Controller
         
         $saldo_akhir = 0;
         if ($buku_besar->isEmpty()) {
-            $buku_besar[] = ['Saldo Awal' => (int) NeracaAwal::where('id_data_akun',$akun)->where('created_by', Auth::id())
-                                                            ->first()->jumlah];
+            $buku_besar[] = ['Saldo Awal' => NeracaAwal::where('id_data_akun',$akun)->whereRaw('YEAR(neraca_awal.tanggal) = '.$year)->where('created_by', Auth::id())->select('neraca_awal.jumlah')
+            ->first()];
         } else {
             foreach ($buku_besar as $key => $value) {
                 if ($key == 0) {
