@@ -133,7 +133,7 @@ class NeracaAwalController extends Controller
       }
        return response()->json([
           'status'=>'success',
-          'klasifikasi_akun'=> $klasifikasi ,
+          'klasifikasi_akun'=> $klasifikasi,
         ]);
      }
 
